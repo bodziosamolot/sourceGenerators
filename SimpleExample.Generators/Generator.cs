@@ -7,6 +7,7 @@ namespace SourceGenerator
     {
         public void Execute(GeneratorExecutionContext context)
         {
+            System.Diagnostics.Debugger.Launch();
             // Find the main method
             var mainMethod = context.Compilation.GetEntryPoint(context.CancellationToken);
 
