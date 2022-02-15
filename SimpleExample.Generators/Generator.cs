@@ -11,7 +11,7 @@ namespace SourceGenerator
 #if DEBUG
             if (!Debugger.IsAttached)
             {
-                Debugger.Launch();
+                // Debugger.Launch();
             }
 #endif
             // Find the main method
