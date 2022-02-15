@@ -1,4 +1,5 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using System.Diagnostics;
+using Microsoft.CodeAnalysis;
 
 namespace SourceGenerator
 {
@@ -7,7 +8,12 @@ namespace SourceGenerator
     {
         public void Execute(GeneratorExecutionContext context)
         {
-            System.Diagnostics.Debugger.Launch();
+#if DEBUG
+            if (!Debugger.IsAttached)
+            {
+                Debugger.Launch();
+            }
+#endif
             // Find the main method
             var mainMethod = context.Compilation.GetEntryPoint(context.CancellationToken);
 
