@@ -11,6 +11,7 @@ namespace SourceGeneratorSamples
     {
         public void Execute(GeneratorExecutionContext context)
         {
+            Console.WriteLine($"{this.GetType()} executing");
             // begin creating the source we'll inject into the users compilation
             var sourceBuilder = new StringBuilder(@"
 using System;
@@ -45,6 +46,7 @@ namespace HelloWorldGenerated
 
         public void Initialize(GeneratorInitializationContext context)
         {
+            Console.WriteLine($"{this.GetType()} initialized");
             // No initialization required for this one
         }
     }

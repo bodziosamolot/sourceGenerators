@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using Microsoft.CodeAnalysis;
 
 namespace SourceGenerator
@@ -8,10 +9,11 @@ namespace SourceGenerator
     {
         public void Execute(GeneratorExecutionContext context)
         {
+            Console.WriteLine($"{this.GetType()} executing");
 #if DEBUG
             if (!Debugger.IsAttached)
             {
-                // Debugger.Launch();
+                Debugger.Launch();
             }
 #endif
             // Find the main method
@@ -38,6 +40,7 @@ namespace {mainMethod.ContainingNamespace.ToDisplayString()}
 
         public void Initialize(GeneratorInitializationContext context)
         {
+            Console.WriteLine($"{this.GetType()} initialized");
             // No initialization required for this one
         }
     }
