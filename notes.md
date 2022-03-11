@@ -7,6 +7,11 @@ BaseIntermediateOutputPath - The top-level folder where all configuration-specif
 
 [Other MSBuild parameters](https://docs.microsoft.com/en-us/visualstudio/msbuild/common-msbuild-project-properties?view=vs-2022)
 
+# To debug
+
+- Rebuild the project which has the attached source generator
+- Choose "csc"
+
 # Roslyn
 [Roslyn](https://github.com/dotnet/roslyn)
 
