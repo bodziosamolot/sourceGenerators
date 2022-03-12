@@ -7,6 +7,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleExample", "SimpleExam
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleExample.Generators", "SimpleExample.Generators\SimpleExample.Generators.csproj", "{5EFFD687-BB05-4FCF-8DB2-0603B0FA0234}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApi", "WebApi\WebApi.csproj", "{CC992C92-7A72-4C3B-AFE3-092C08D82F8A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApi.Generators", "WebApi.Generators\WebApi.Generators.csproj", "{1DDBA45E-EBE3-45CC-92C5-3E729282D4E9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +28,13 @@ Global
 		{5EFFD687-BB05-4FCF-8DB2-0603B0FA0234}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5EFFD687-BB05-4FCF-8DB2-0603B0FA0234}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5EFFD687-BB05-4FCF-8DB2-0603B0FA0234}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC992C92-7A72-4C3B-AFE3-092C08D82F8A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC992C92-7A72-4C3B-AFE3-092C08D82F8A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC992C92-7A72-4C3B-AFE3-092C08D82F8A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC992C92-7A72-4C3B-AFE3-092C08D82F8A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1DDBA45E-EBE3-45CC-92C5-3E729282D4E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1DDBA45E-EBE3-45CC-92C5-3E729282D4E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1DDBA45E-EBE3-45CC-92C5-3E729282D4E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1DDBA45E-EBE3-45CC-92C5-3E729282D4E9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -23,3 +23,8 @@ BaseIntermediateOutputPath - The top-level folder where all configuration-specif
 but this one is better [Rossynt](https://plugins.jetbrains.com/plugin/16902-rossynt)
 
 C# compiler with an API allowing code analysis.
+
+# Rider versions
+
+- 2022.1 EAP 5 - couldn't make the generated files be included in the build
+- 2021.3.3 - works fine

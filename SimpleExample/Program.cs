@@ -1,4 +1,6 @@
-﻿namespace ConsoleApp;
+﻿using HelloWorldGenerated;
+
+namespace ConsoleApp;
 
 partial class Program
 {
