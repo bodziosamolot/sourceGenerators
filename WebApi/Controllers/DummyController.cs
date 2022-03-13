@@ -9,4 +9,9 @@ public class DummyController : Controller
     {
         return null;
     }
+
+    public int ThisIsATestFunction()
+    {
+        return 1;
+    }
 }

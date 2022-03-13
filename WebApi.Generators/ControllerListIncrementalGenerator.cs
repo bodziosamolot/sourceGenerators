@@ -13,12 +13,6 @@ namespace SourceGenerator
     [Generator]
     public class ControllerListIncrementalGenerator : IIncrementalGenerator
     {
-        public void Initialize(GeneratorInitializationContext context)
-        {
-            Console.WriteLine($"{this.GetType()} initialized");
-            // No initialization required for this one
-        }
-
         public void Initialize(IncrementalGeneratorInitializationContext context)
         {
             Console.WriteLine($"{this.GetType()} initialized");
@@ -43,15 +37,25 @@ namespace SourceGenerator
                         }
                     }).Where(m => m is not null);
 
-            IncrementalValueProvider<(Compilation, ImmutableArray<ClassDeclarationSyntax>)> compilationAndControllers
+            IncrementalValuesProvider<MethodDeclarationSyntax> functionDeclarations = context.SyntaxProvider
+                .CreateSyntaxProvider(predicate: (node, token) => node is MethodDeclarationSyntax,
+                    (syntaxContext, token) =>
+                    {
+                        return (MethodDeclarationSyntax)syntaxContext.Node;
+                    })
+                .Where(m => m is not null);
+
+
+            var compilationAndControllers
                 = context.CompilationProvider.Combine(controllerDeclarations
-                    .Collect()); // TODO: What is this combine operation for?
+                    .Collect()).Combine(functionDeclarations.Collect()); // TODO: What is this combine operation for?
 
             context.RegisterSourceOutput(compilationAndControllers,
-                static (spc, source) => Execute(source.Item1, source.Item2, spc));
+                static (spc, source) => Execute(source.Left.Left, source.Left.Right, source.Right, spc));
         }
 
         static void Execute(Compilation compilation, ImmutableArray<ClassDeclarationSyntax> controllers,
+            ImmutableArray<MethodDeclarationSyntax> functions,
             SourceProductionContext context)
         {
             if (controllers.IsDefaultOrEmpty)
@@ -70,8 +74,17 @@ namespace SourceGenerator
                 controllerNames.Add($"\"{controllerSymbol.Name}\"");
             }
 
+            var functionInformation = new List<FunctionInformation>();
+            foreach (var methodDeclarationSyntax in functions)
+            {
+                SemanticModel semanticModel = compilation.GetSemanticModel(methodDeclarationSyntax.SyntaxTree);
+                var methodSymbol = semanticModel.GetDeclaredSymbol(methodDeclarationSyntax) as IMethodSymbol;
 
-            context.AddSource("ControllerListController.g.cs", FunctionTextProvider.GetFunctionText(controllerNames));
+                var implementationFlagNames = string.Join(",", methodSymbol.MethodImplementationFlags);
+                functionInformation.Add(new FunctionInformation(methodSymbol.Name, methodSymbol.ContainingType.Name, methodSymbol.ToString(), implementationFlagNames));
+            }
+
+            context.AddSource("ControllerListController.g.cs", FunctionTextProvider.GetFunctionText(controllerNames, functionInformation));
         }
     }
 }

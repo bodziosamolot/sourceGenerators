@@ -28,3 +28,7 @@ C# compiler with an API allowing code analysis.
 
 - 2022.1 EAP 5 - couldn't make the generated files be included in the build
 - 2021.3.3 - works fine
+
+# Links 
+
+- [Source generators vs Incremental Source Generators by Andrew Locke](https://andrewlock.net/exploring-dotnet-6-part-9-source-generator-updates-incremental-generators/)
