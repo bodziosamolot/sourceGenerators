@@ -32,3 +32,17 @@ C# compiler with an API allowing code analysis.
 # Links 
 
 - [Source generators vs Incremental Source Generators by Andrew Locke](https://andrewlock.net/exploring-dotnet-6-part-9-source-generator-updates-incremental-generators/)
+
+# Laws of source generators (from [Roslyn Source Generators Never send a human to do a machine's job - Stefan Pölz](https://youtu.be/lJCfPhnFLQs?t=592))
+
+- retrieve representation of user code
+  - syntax trees
+  - semantic model
+- can only add code
+- can produce diagnostics
+- products of one source generator are not visible to the other generators
+
+# Shipped with .NET 6
+
+- System.Text.Json ([Explained](https://youtu.be/lJCfPhnFLQs?t=813))
+- Microsoft.Extensions.Logging.Abstractions ([Explained](https://youtu.be/lJCfPhnFLQs?t=699))

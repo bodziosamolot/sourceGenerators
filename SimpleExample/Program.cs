@@ -1,4 +1,5 @@
-﻿using HelloWorldGenerated;
+﻿using System;
+using HelloWorldGenerated;
 
 namespace ConsoleApp;
 

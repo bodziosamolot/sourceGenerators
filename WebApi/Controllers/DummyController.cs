@@ -10,8 +10,8 @@ public class DummyController : Controller
         return null;
     }
 
-    public int ThisIsATestFunction()
+    public int ThisIsATestFunctionReally()
     {
-        return 1;
+        return 2;
     }
 }

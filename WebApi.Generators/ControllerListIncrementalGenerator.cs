@@ -60,7 +60,6 @@ namespace SourceGenerator
         {
             if (controllers.IsDefaultOrEmpty)
             {
-                // nothing to do yet
                 return;
             }
 
