@@ -1,4 +1,4 @@
-﻿namespace SourceGenerator;
+﻿namespace WebApi.IncrementalGenerators;
 
 public class FunctionInformation
 {

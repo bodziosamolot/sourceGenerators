@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30114.105
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleExample", "SimpleExample\SimpleExample.csproj", "{BC0D3158-C7B6-42F1-BC78-6DF4DCA4D939}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleExample.Generators", "SimpleExample.Generators\SimpleExample.Generators.csproj", "{5EFFD687-BB05-4FCF-8DB2-0603B0FA0234}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApi", "WebApi\WebApi.csproj", "{CC992C92-7A72-4C3B-AFE3-092C08D82F8A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApi.Generators", "WebApi.Generators\WebApi.Generators.csproj", "{1DDBA45E-EBE3-45CC-92C5-3E729282D4E9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApi.IncrementalGenerators", "WebApi.IncrementalGenerators\WebApi.IncrementalGenerators.csproj", "{1DDBA45E-EBE3-45CC-92C5-3E729282D4E9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApi.Generators", "WebApi.Generators\WebApi.Generators.csproj", "{E94FE5CA-4992-4133-B0BC-B03205A08D6C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Generators.Shared", "Generators.Shared\Generators.Shared.csproj", "{3BCC814B-891D-42CC-B40D-862771BE2A93}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -20,14 +20,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{BC0D3158-C7B6-42F1-BC78-6DF4DCA4D939}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BC0D3158-C7B6-42F1-BC78-6DF4DCA4D939}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BC0D3158-C7B6-42F1-BC78-6DF4DCA4D939}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BC0D3158-C7B6-42F1-BC78-6DF4DCA4D939}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5EFFD687-BB05-4FCF-8DB2-0603B0FA0234}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5EFFD687-BB05-4FCF-8DB2-0603B0FA0234}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5EFFD687-BB05-4FCF-8DB2-0603B0FA0234}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5EFFD687-BB05-4FCF-8DB2-0603B0FA0234}.Release|Any CPU.Build.0 = Release|Any CPU
 		{CC992C92-7A72-4C3B-AFE3-092C08D82F8A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{CC992C92-7A72-4C3B-AFE3-092C08D82F8A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CC992C92-7A72-4C3B-AFE3-092C08D82F8A}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -36,5 +28,13 @@ Global
 		{1DDBA45E-EBE3-45CC-92C5-3E729282D4E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1DDBA45E-EBE3-45CC-92C5-3E729282D4E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1DDBA45E-EBE3-45CC-92C5-3E729282D4E9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E94FE5CA-4992-4133-B0BC-B03205A08D6C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E94FE5CA-4992-4133-B0BC-B03205A08D6C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E94FE5CA-4992-4133-B0BC-B03205A08D6C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E94FE5CA-4992-4133-B0BC-B03205A08D6C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3BCC814B-891D-42CC-B40D-862771BE2A93}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3BCC814B-891D-42CC-B40D-862771BE2A93}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3BCC814B-891D-42CC-B40D-862771BE2A93}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3BCC814B-891D-42CC-B40D-862771BE2A93}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

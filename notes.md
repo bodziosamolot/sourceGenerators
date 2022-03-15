@@ -42,6 +42,8 @@ C# compiler with an API allowing code analysis.
 - can produce diagnostics
 - products of one source generator are not visible to the other generators
 
+SyntaxReceiver is called on each key press ([explained](https://youtu.be/lJCfPhnFLQs?t=1186))
+
 # Shipped with .NET 6
 
 - System.Text.Json ([Explained](https://youtu.be/lJCfPhnFLQs?t=813))
