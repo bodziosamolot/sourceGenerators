@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace WebApi.Controllers;
-
 public class DummyController : Controller
 {
     // GET
@@ -12,6 +10,6 @@ public class DummyController : Controller
 
     public int ThisIsATestFunctionReally()
     {
-        return 2;
+        return 32;
     }
 }

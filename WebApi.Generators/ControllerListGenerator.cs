@@ -1,44 +1,47 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using WebApi.IncrementalGenerators;
 
-namespace WebApi.Generators;
-
-[Generator]
-public class ControllerListGenerator : ISourceGenerator
+namespace WebApi.Generators
 {
-    public void Execute(GeneratorExecutionContext context)
+    [Generator]
+    public class ControllerListGenerator : ISourceGenerator
     {
-        var controllersSyntax = GetAllClasses(context.Compilation)
-            .Where(classNode => classNode.Identifier.Text.EndsWith("Controller"));
-
-        var controllerNames = controllersSyntax.Select(controllerSyntax =>
+        public void Execute(GeneratorExecutionContext context)
         {
-            var controllerSemanticModel = context.Compilation.GetSemanticModel(controllerSyntax.SyntaxTree);
-            var controllerSymbol = controllerSemanticModel.GetDeclaredSymbol(controllerSyntax) as IMethodSymbol;
-            var implementationFlagNames = string.Join(",", controllerSymbol.MethodImplementationFlags);
-            return controllerSymbol.Name;
-        });
+            Debugger.Launch();
+        
+            var controllersSyntax = GetAllClasses(context.Compilation)
+                .Where(classNode => classNode.Identifier.Text.EndsWith("Controller"));
 
-        // Build up the source code
-        string source = FunctionTextProvider.GetFunctionText(controllerNames);
+            var controllerNames = controllersSyntax.Select(controllerSyntax =>
+            {
+                var controllerSemanticModel = context.Compilation.GetSemanticModel(controllerSyntax.SyntaxTree);
+                var controllerSymbol = controllerSemanticModel.GetDeclaredSymbol(controllerSyntax) as IMethodSymbol;
+                var implementationFlagNames = string.Join(",", controllerSymbol.MethodImplementationFlags);
+                return controllerSymbol.Name;
+            });
 
-        // Add the source code to the compilation
-        context.AddSource($"ControllerListController.g.cs", source);
-    }
+            // Build up the source code
+            string source = FunctionTextProvider.GetFunctionText(controllerNames);
 
-    public void Initialize(GeneratorInitializationContext context)
-    {
-        Debugger.Launch();
-    }
+            // Add the source code to the compilation
+            context.AddSource($"ControllerListController.g.cs", source);
+        }
 
-    private IEnumerable<ClassDeclarationSyntax> GetAllClasses(Compilation compilation)
-    {
-        IEnumerable<SyntaxNode> allNodes = compilation.SyntaxTrees.SelectMany(s => s.GetRoot().DescendantNodes());
-        return allNodes
-            .Where(d => d.IsKind(SyntaxKind.ClassDeclaration))
-            .OfType<ClassDeclarationSyntax>();
+        public void Initialize(GeneratorInitializationContext context)
+        {
+        }
+
+        private IEnumerable<ClassDeclarationSyntax> GetAllClasses(Compilation compilation)
+        {
+            IEnumerable<SyntaxNode> allNodes = compilation.SyntaxTrees.SelectMany(s => s.GetRoot().DescendantNodes());
+            return allNodes
+                .Where(d => d.IsKind(SyntaxKind.ClassDeclaration))
+                .OfType<ClassDeclarationSyntax>();
+        }
     }
 }

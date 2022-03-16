@@ -1,6 +1,4 @@
-﻿namespace WebApi.IncrementalGenerators;
-
-public class FunctionInformation
+﻿public class FunctionInformation
 {
     public string Name { get; private set; }
     public string ParentClass { get; private set; }
