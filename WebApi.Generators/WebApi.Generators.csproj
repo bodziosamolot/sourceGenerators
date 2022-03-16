@@ -17,8 +17,4 @@
         </PackageReference>
     </ItemGroup>
 
-    <ItemGroup>
-      <ProjectReference Include="..\Generators.Shared\Generators.Shared.csproj" />
-    </ItemGroup>
-
 </Project>

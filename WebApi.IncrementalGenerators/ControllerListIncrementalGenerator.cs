@@ -78,7 +78,7 @@ namespace WebApi.IncrementalGenerators
                 functionInformation.Add(new FunctionInformation(methodSymbol.Name, methodSymbol.ContainingType.Name, methodSymbol.ToString(), implementationFlagNames));
             }
 
-            context.AddSource("ControllerListController.g.cs", FunctionTextProvider.GetFunctionText(controllerNames, functionInformation));
+            context.AddSource("ControllerListController.Incremental.g.cs", FunctionTextProvider.GetFunctionText(controllerNames, functionInformation));
         }
     }
 }

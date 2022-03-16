@@ -20,16 +20,20 @@ namespace WebApi.Generators
             var controllerNames = controllersSyntax.Select(controllerSyntax =>
             {
                 var controllerSemanticModel = context.Compilation.GetSemanticModel(controllerSyntax.SyntaxTree);
-                var controllerSymbol = controllerSemanticModel.GetDeclaredSymbol(controllerSyntax) as IMethodSymbol;
-                var implementationFlagNames = string.Join(",", controllerSymbol.MethodImplementationFlags);
+                var controllerSymbol = controllerSemanticModel.GetDeclaredSymbol(controllerSyntax);
+                if (controllerSymbol is null)
+                {
+                    return null;
+                }
+                
                 return controllerSymbol.Name;
-            });
+            }).Where(x=>x != null).ToList();
 
             // Build up the source code
             string source = FunctionTextProvider.GetFunctionText(controllerNames);
 
             // Add the source code to the compilation
-            context.AddSource($"ControllerListController.g.cs", source);
+            context.AddSource($"ControllerListController.Basic.g.cs", source);
         }
 
         public void Initialize(GeneratorInitializationContext context)

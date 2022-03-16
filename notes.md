@@ -48,3 +48,7 @@ SyntaxReceiver is called on each key press ([explained](https://youtu.be/lJCfPhn
 
 - System.Text.Json ([Explained](https://youtu.be/lJCfPhnFLQs?t=813))
 - Microsoft.Extensions.Logging.Abstractions ([Explained](https://youtu.be/lJCfPhnFLQs?t=699))
+
+# Remarks
+
+- don't make the generator project reference other projects because it causes [an issue](https://github.com/dotnet/roslyn/issues/52017)

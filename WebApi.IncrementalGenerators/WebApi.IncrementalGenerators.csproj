@@ -11,8 +11,4 @@
       <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.0.1" />
     </ItemGroup>
 
-    <ItemGroup>
-      <ProjectReference Include="..\Generators.Shared\Generators.Shared.csproj" />
-    </ItemGroup>
-
 </Project>

@@ -13,12 +13,12 @@
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
     </ItemGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\WebApi.IncrementalGenerators\WebApi.IncrementalGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-    </ItemGroup>
-
 <!--    <ItemGroup>-->
-<!--        <ProjectReference Include="..\WebApi.Generators\WebApi.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />-->
+<!--        <ProjectReference Include="..\WebApi.IncrementalGenerators\WebApi.IncrementalGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />-->
 <!--    </ItemGroup>-->
+
+    <ItemGroup>
+        <ProjectReference Include="..\WebApi.Generators\WebApi.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    </ItemGroup>
 
 </Project>
