@@ -7,8 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApi", "WebApi\WebApi.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApi.IncrementalGenerators", "WebApi.IncrementalGenerators\WebApi.IncrementalGenerators.csproj", "{1DDBA45E-EBE3-45CC-92C5-3E729282D4E9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Generators.Shared", "Generators.Shared\Generators.Shared.csproj", "{3BCC814B-891D-42CC-B40D-862771BE2A93}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -26,9 +24,5 @@ Global
 		{1DDBA45E-EBE3-45CC-92C5-3E729282D4E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1DDBA45E-EBE3-45CC-92C5-3E729282D4E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1DDBA45E-EBE3-45CC-92C5-3E729282D4E9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3BCC814B-891D-42CC-B40D-862771BE2A93}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3BCC814B-891D-42CC-B40D-862771BE2A93}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3BCC814B-891D-42CC-B40D-862771BE2A93}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3BCC814B-891D-42CC-B40D-862771BE2A93}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
