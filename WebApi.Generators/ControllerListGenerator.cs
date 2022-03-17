@@ -12,7 +12,7 @@ namespace WebApi.Generators
     {
         public void Execute(GeneratorExecutionContext context)
         {
-            Debugger.Launch();
+            // Debugger.Launch();
         
             var controllersSyntax = GetAllClasses(context.Compilation)
                 .Where(classNode => classNode.Identifier.Text.EndsWith("Controller"));
@@ -26,7 +26,7 @@ namespace WebApi.Generators
                     return null;
                 }
                 
-                return controllerSymbol.Name;
+                return $"\"{controllerSymbol.Name}\"";
             }).Where(x=>x != null).ToList();
 
             // Build up the source code
