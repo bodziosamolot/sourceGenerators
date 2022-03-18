@@ -16,13 +16,27 @@ namespace WebApi.IncrementalGenerators
                 // Debugger.Launch();
             }
 
+            // 1. Filter for syntax we are interested in
             IncrementalValuesProvider<ClassDeclarationSyntax> controllerDeclarations = context.SyntaxProvider
                 .CreateSyntaxProvider(predicate: (node, token) => node is ClassDeclarationSyntax,
                     (syntaxContext, token) =>
                     {
-                        var classDeclarationSyntax = (ClassDeclarationSyntax)syntaxContext.Node;
+                        var classDeclarationSyntax = syntaxContext.Node as ClassDeclarationSyntax;
+                        if (classDeclarationSyntax is null)
+                        {
+                            return null;
+                        }
+                        
+                        // SemanticModel -  Allows asking semantic questions about a tree of syntax nodes in a Compilation
+                        // Why can't i get the symbol from syntaxContext.SemanticModel.GetSymbolInfo()
+                        
+                        // var classSymbol = syntaxContext.SemanticModel.GetSymbolInfo(classDeclarationSyntax);
+                        // if (classSymbol.Symbol is not null)
+                        // {
+                        //     return classDeclarationSyntax;
+                        // }
 
-                        if (classDeclarationSyntax.Identifier.Value?.ToString().EndsWith("Controller") ?? false)
+                        if(classDeclarationSyntax.Identifier.Value.ToString().EndsWith("Controller") && classDeclarationSyntax.BaseList.Types.Any(baseType => baseType.ToString().StartsWith("Controller")))
                         {
                             return classDeclarationSyntax;
                         }
@@ -30,7 +44,7 @@ namespace WebApi.IncrementalGenerators
                         {
                             return null;
                         }
-                    }).Where(m => m is not null);
+                    }).Where(m => m is not null)!;
 
             IncrementalValuesProvider<MethodDeclarationSyntax> functionDeclarations = context.SyntaxProvider
                 .CreateSyntaxProvider(predicate: (node, token) => node is MethodDeclarationSyntax,
@@ -43,7 +57,9 @@ namespace WebApi.IncrementalGenerators
 
             var compilationAndControllers
                 = context.CompilationProvider.Combine(controllerDeclarations
-                    .Collect()).Combine(functionDeclarations.Collect()); // TODO: What is this combine operation for?
+                    .Collect()).Combine(functionDeclarations.Collect()); // Combine seems to be the only way to get to the Compilation
+                                                                         // in contrast to how in basic Generator, Compilation is
+                                                                         // available directly on the context
 
             context.RegisterSourceOutput(compilationAndControllers,
                 static (spc, source) => Execute(source.Left.Left, source.Left.Right, source.Right, spc));
@@ -64,8 +80,8 @@ namespace WebApi.IncrementalGenerators
             foreach (var classDeclarationSyntax in distinctControllers)
             {
                 SemanticModel semanticModel = compilation.GetSemanticModel(classDeclarationSyntax.SyntaxTree);
-                var controllerSymbol = semanticModel.GetDeclaredSymbol(classDeclarationSyntax);
-                controllerNames.Add($"\"{controllerSymbol.Name}\"");
+                var controllerSymbol = semanticModel.GetDeclaredSymbol(classDeclarationSyntax) as INamedTypeSymbol;
+                controllerNames.Add($"\"{controllerSymbol.Name}->{string.Join(",", controllerSymbol.Constructors)}\"");
             }
 
             var functionInformation = new List<FunctionInformation>();
