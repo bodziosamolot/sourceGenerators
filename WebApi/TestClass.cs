@@ -4,6 +4,7 @@ public static class TestClass
 {
    public static int ThisIsAlsoATestFunction()
    {
+      var test = new RandomBaseTypeTwo();
       return 1;
    }
 
