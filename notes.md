@@ -120,3 +120,7 @@ The three stages:
 - filter: for syntax we are interested in
 - transformation: transform syntax into semantic model (a symbol) using compilation, can provide custom data structure containing whaever is needed for source generation
 - generate the code using rich information from the semantic model
+
+# Source Generators vs Incremental Source Generators
+
+[Comparison](https://youtu.be/lJCfPhnFLQs?t=2725)

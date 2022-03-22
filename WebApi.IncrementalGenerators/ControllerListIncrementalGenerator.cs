@@ -62,14 +62,14 @@ namespace WebApi.IncrementalGenerators
                         return (MethodDeclarationSyntax)syntaxContext.Node;
                     })
                 .Where(m => m is not null);
-            
+
             var compilationAndControllers
                 = context.CompilationProvider.Combine(controllerDeclarations
                     .Collect()).Combine(functionDeclarations.Collect()); // Combine seems to be the only way to get to the Compilation
                                                                          // in contrast to how in basic Generator, Compilation is
                                                                          // available directly on the context. Or maybe it is not? Maybe it is enough to
                                                                          // Use compilation with the filtered syntax? TRY DOING THIS!
-
+                                                                         
             context.RegisterSourceOutput(compilationAndControllers,
                 static (spc, source) => Execute(source.Left.Left, source.Left.Right, source.Right, spc));
         }
