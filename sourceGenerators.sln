@@ -12,6 +12,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Notes", "Notes", "{72177784-C1AC-423C-A03D-83A62F1729C6}"
 	ProjectSection(SolutionItems) = preProject
 		notes.md = notes.md
+		article.md = article.md
 	EndProjectSection
 EndProject
 Global
