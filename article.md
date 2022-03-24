@@ -30,15 +30,16 @@ Syntax visualisation of everyones favourite [WeatherForecastController](https://
 ![Syntax Tree of everyones favourite WeatherForecastController](https://i.imgur.com/AU0veYl.png)
 
 It shows basic building blocks of the tree:
-- Node - 
-- Token - 
-- Trivia - 
-- Value - 
+- Node - Building blocks of the syntax tree consisting of combination of tokens, trivia and other nodes
+- Token - Leaves of the syntax tree. These are elements like keywords or identifiers
+- Trivia - Parts of syntax with really low significance like whitespace or comments
+- Value - ???
 
 ## Definitions
 
-- Compiler - 
-- Parser - 
+- Compiler - Takes code in, passes it through a pipeline and produces a  
+- Roslyn - 
+- Parser - Part of the compiler responsible for building the Syntax Tree from linear text (???)
 - Syntax Tree - 
 - Syntax Node - 
 
