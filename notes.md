@@ -93,6 +93,7 @@ The extension method from which this symbol was reduced.
 
 - [Source generators vs Incremental Source Generators by Andrew Locke](https://andrewlock.net/exploring-dotnet-6-part-9-source-generator-updates-incremental-generators/)
 - [Smart Enums](https://www.thinktecture.com/en/net/roslyn-source-generators-introduction/)
+- [Incremental Source Generators documentation that comes with Roslyn](https://github.com/dotnet/roslyn/blob/main/docs/features/incremental-generators.md)
 
 # Laws of source generators (from [Roslyn Source Generators Never send a human to do a machine's job - Stefan Pölz](https://youtu.be/lJCfPhnFLQs?t=592))
 

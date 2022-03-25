@@ -3,48 +3,75 @@ using System.Diagnostics;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.FindSymbols;
+using CSharpExtensions = Microsoft.CodeAnalysis.CSharp.CSharpExtensions;
 
 namespace WebApi.IncrementalGenerators
 {
     [Generator]
     public class ControllerListIncrementalGenerator : IIncrementalGenerator
     {
+        private static IList<string> _logs = new List<string>();
+
         public void Initialize(IncrementalGeneratorInitializationContext context)
         {
-            Console.WriteLine($"{this.GetType()} initialized");
+            _logs.Add("Initialize() called");
             if (!Debugger.IsAttached)
             {
-                Debugger.Launch();
+                // Debugger.Launch();
             }
 
             // 1. Filter for syntax we are interested in
             IncrementalValuesProvider<ClassDeclarationSyntax> controllerDeclarations = context.SyntaxProvider
-                .CreateSyntaxProvider(predicate: (node, token) => node is ClassDeclarationSyntax && ((ClassDeclarationSyntax)node).Identifier.Value.ToString().EndsWith("Controller"),
+                .CreateSyntaxProvider(
+                    predicate: (node, token) =>
+                    {
+                        var result = node is ClassDeclarationSyntax && ((ClassDeclarationSyntax)node)
+                            .Identifier.Value.ToString().EndsWith("Controller");
+
+                        _logs.Add($"{Environment.NewLine} ---------------------------------------------------------");
+                        _logs.Add($"{Environment.NewLine} [] predicate called on {CSharpExtensions.Kind(node)}:");
+                        _logs.Add($"{Environment.NewLine}{node.GetText()}");
+                        _logs.Add($"{Environment.NewLine} ----------------- returned: {result}---------------------");
+                        return result;
+                    },
                     (syntaxContext, token) =>
                     {
+                        _logs.Add("transform called");
                         var classDeclarationSyntax = syntaxContext.Node as ClassDeclarationSyntax;
                         if (classDeclarationSyntax is null)
                         {
                             return null;
                         }
 
-                        
                         // SemanticModel -  Allows asking semantic questions about a tree of syntax nodes in a Compilation
                         // Why can't i get the symbol from syntaxContext.SemanticModel.GetSymbolInfo()
-                        
+
                         // var controllerSymbol = syntaxContext.SemanticModel.GetSymbolInfo(classDeclarationSyntax);
-                        var controllerSymbol = syntaxContext.SemanticModel.GetDeclaredSymbol(classDeclarationSyntax) as INamedTypeSymbol;
+                        var controllerSymbol =
+                            syntaxContext.SemanticModel.GetDeclaredSymbol(classDeclarationSyntax) as INamedTypeSymbol;
                         // What is the SemanticModel in the syntaxContext (GeneratorSyntaxContext)??
-                        
+
                         // SemanticModel provides semantic information. How is it doing that if it does not have access to the compilation? 
                         // It has access to compilation. IncrementalValuesProvider 
                         if (controllerSymbol is not null)
                         {
+                            _logs.Add(
+                                $"{Environment.NewLine} ---------------------------------------------------------");
+                            _logs.Add($"{Environment.NewLine} [] transform returned {controllerSymbol.Name}:");
+                            _logs.Add(
+                                $"{Environment.NewLine} ---------------------------------------------------------");
                             return classDeclarationSyntax;
                         }
 
-                        if(classDeclarationSyntax.Identifier.Value.ToString().EndsWith("Controller") && classDeclarationSyntax.BaseList.Types.Any(baseType => baseType.ToString().StartsWith("Controller")))
+                        if (classDeclarationSyntax.Identifier.Value.ToString().EndsWith("Controller") &&
+                            classDeclarationSyntax.BaseList.Types.Any(baseType =>
+                                baseType.ToString().StartsWith("Controller")))
                         {
+                            _logs.Add(
+                                $"{Environment.NewLine} ---------------------------------------------------------");
+                            _logs.Add($"{Environment.NewLine} [] transform returned {controllerSymbol.Name}:");
+                            _logs.Add(
+                                $"{Environment.NewLine} ---------------------------------------------------------");
                             return classDeclarationSyntax;
                         }
                         else
@@ -52,29 +79,26 @@ namespace WebApi.IncrementalGenerators
                             return null;
                         }
                     }).Where(m => m is not null)!;
-            
-            
+
 
             IncrementalValuesProvider<MethodDeclarationSyntax> functionDeclarations = context.SyntaxProvider
                 .CreateSyntaxProvider(predicate: (node, token) => node is MethodDeclarationSyntax,
-                    (syntaxContext, token) =>
-                    {
-                        return (MethodDeclarationSyntax)syntaxContext.Node;
-                    })
+                    (syntaxContext, token) => { return (MethodDeclarationSyntax)syntaxContext.Node; })
                 .Where(m => m is not null);
 
             var compilationAndControllers
                 = context.CompilationProvider.Combine(controllerDeclarations
-                    .Collect()).Combine(functionDeclarations.Collect()); // Combine seems to be the only way to get to the Compilation
-                                                                         // in contrast to how in basic Generator, Compilation is
-                                                                         // available directly on the context. Or maybe it is not? Maybe it is enough to
-                                                                         // Use compilation with the filtered syntax? TRY DOING THIS!
-                                                                         
+                    .Collect()).Combine(functionDeclarations
+                    .Collect()); // Combine seems to be the only way to get to the Compilation
+            // in contrast to how in basic Generator, Compilation is
+            // available directly on the context. Or maybe it is not? Maybe it is enough to
+            // Use compilation with the filtered syntax? TRY DOING THIS!
+
             context.RegisterSourceOutput(compilationAndControllers,
-                static (spc, source) => Execute(source.Left.Left, source.Left.Right, source.Right, spc));
+                (spc, source) => Execute(source.Left.Left, source.Left.Right, source.Right, spc));
         }
 
-        static void Execute(Compilation compilation, ImmutableArray<ClassDeclarationSyntax> controllers,
+        void Execute(Compilation compilation, ImmutableArray<ClassDeclarationSyntax> controllers,
             ImmutableArray<MethodDeclarationSyntax> functions,
             SourceProductionContext context)
         {
@@ -100,10 +124,21 @@ namespace WebApi.IncrementalGenerators
                 var methodSymbol = semanticModel.GetDeclaredSymbol(methodDeclarationSyntax) as IMethodSymbol;
 
                 var implementationFlagNames = string.Join(",", methodSymbol.MethodImplementationFlags);
-                functionInformation.Add(new FunctionInformation(methodSymbol.Name, methodSymbol.ContainingType.Name, methodSymbol.ToString(), implementationFlagNames));
+                functionInformation.Add(new FunctionInformation(methodSymbol.Name, methodSymbol.ContainingType.Name,
+                    methodSymbol.ToString(), implementationFlagNames));
             }
 
-            context.AddSource("ControllerListController.Incremental.g.cs", FunctionTextProvider.GetFunctionText(controllerNames, functionInformation));
+            context.AddSource("ControllerListController.Incremental.g.cs",
+                FunctionTextProvider.GetFunctionText(controllerNames, functionInformation));
+
+            CreateLog(context);
+        }
+
+        private void CreateLog(SourceProductionContext context)
+        {
+            var timestamp =
+                $"{DateTimeOffset.UtcNow.Date.ToShortDateString()}_{DateTime.UtcNow.ToLongTimeString().Replace(":", "_")}";
+            context.AddSource($"log_{timestamp}.txt", string.Join(Environment.NewLine, _logs));
         }
     }
 }

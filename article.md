@@ -35,6 +35,14 @@ It shows basic building blocks of the tree:
 - Trivia - Parts of syntax with really low significance like whitespace or comments
 - Value - ???
 
+## Types of Source Generators
+
+### Regular Source Generators
+
+### Incremental Source Generator
+
+?? When does an incremental source generator run?
+
 ## Definitions
 
 - Compiler - Takes code in, passes it through a pipeline and produces a  
@@ -48,3 +56,4 @@ It shows basic building blocks of the tree:
 - https://docs.microsoft.com/en-us/dotnet/csharp/roslyn-sdk/compiler-api-model
 - https://joshvarty.com/2014/07/06/learn-roslyn-now-part-2-analyzing-syntax-trees-with-linq
 - [Syntax vs Semantics](https://stackoverflow.com/questions/17930267/what-is-the-difference-between-syntax-and-semantics-in-programming-languages)
+- [Incremental Source Generators documentation that comes with Roslyn](https://github.com/dotnet/roslyn/blob/main/docs/features/incremental-generators.md)
