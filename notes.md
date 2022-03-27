@@ -66,6 +66,8 @@ There are 3 different ways to request the semantic model:
 
 The semantic model is our bridge between the world of syntax and the world of symbols.
 
+[What is a compilation?](https://docs.microsoft.com/en-us/dotnet/csharp/roslyn-sdk/get-started/semantic-analysis#understanding-compilations-and-symbols)
+
 ## Symbols
 
 Before continuing, it’s worth taking a moment to discuss Symbols.
@@ -94,6 +96,7 @@ The extension method from which this symbol was reduced.
 - [Source generators vs Incremental Source Generators by Andrew Locke](https://andrewlock.net/exploring-dotnet-6-part-9-source-generator-updates-incremental-generators/)
 - [Smart Enums](https://www.thinktecture.com/en/net/roslyn-source-generators-introduction/)
 - [Incremental Source Generators documentation that comes with Roslyn](https://github.com/dotnet/roslyn/blob/main/docs/features/incremental-generators.md)
+- [Syntax Tree and Symbol](https://medium.com/@dullohan/the-roslyn-compiler-relating-the-syntax-tree-to-symbols-949eeed59a30)
 
 # Laws of source generators (from [Roslyn Source Generators Never send a human to do a machine's job - Stefan Pölz](https://youtu.be/lJCfPhnFLQs?t=592))
 

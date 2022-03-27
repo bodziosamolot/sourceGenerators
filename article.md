@@ -1,4 +1,11 @@
-﻿# Source Generators
+﻿# Questions
+
+- When does the incremental source generator run? 
+  - Is it at every keystroke? 
+  - How to verify it?
+- When does the source generator run?
+
+# Source Generators
 
 ## Introduction
 
@@ -18,10 +25,11 @@ powerful features like: code metrics, analyzers and source generators.
 The picture above shows the compiler pipeline and APIs corresponding to its phases. We will need some fundamental knowledge 
 about how the compiler works in order to make use of source generators.
 
-### Syntax Trees
+### Syntax Trees and Syntax Analysis
 
-At the most basic level we work with our code as a static text. This text is processed by the parser which produces a Syntax Tree. It is
-a hierarchical representation of that text consisting of Syntax Nodes. It is best pictured with the following tools:
+At the most basic level we work with our code as a static text. This text is processed by the parser which produces a Syntax Tree. Referring 
+to the Compiler Pipeline illustration it corresponds to the "Parser" box. A Syntax Tree is
+a hierarchical representation of text consisting of Syntax Nodes. It is best pictured with the following tools:
 
 - [Syntax Tree Viewer in Rider](https://plugins.jetbrains.com/plugin/16356-syntax-visualizer-for-rider)
 - Syntax Visualizer (with Directed Syntax Graph in Ultimate editions of Visual Studio)
@@ -33,7 +41,17 @@ It shows basic building blocks of the tree:
 - Node - Building blocks of the syntax tree consisting of combination of tokens, trivia and other nodes
 - Token - Leaves of the syntax tree. These are elements like keywords or identifiers
 - Trivia - Parts of syntax with really low significance like whitespace or comments
-- Value - ???
+- Value - Some tokens store the characters they consist of in a separate field called Value 
+
+Syntax trees are used in what is called *syntax analysis*. You could compare a syntax tree to a diagram of code in one source file. It can be 
+useful but You are missing the context. In order to get more information we need to get to *semantic analysis*.
+
+### Compilation and Semantic Analysis 
+
+The key to obtaining semantic information about our code is the Compilation. With it we see our constructs not in isolation like in the case of 
+Syntax Trees but in a broader context. This context can be imagined as a compilation unit: an assembly or a project in our solution. So in other 
+words: Compilation can be understood as a bunch of Syntax Trees stuck together allowing to get more information. This is the Semantic Model. It
+allows us to get information through Symbols. 
 
 ## Types of Source Generators
 
@@ -50,6 +68,8 @@ It shows basic building blocks of the tree:
 - Parser - Part of the compiler responsible for building the Syntax Tree from linear text (???)
 - Syntax Tree - 
 - Syntax Node - 
+- Compilation - 
+- Symbol - 
 
 ### Sources
 
