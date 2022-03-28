@@ -3,6 +3,8 @@
 - When does the incremental source generator run? 
   - Is it at every keystroke? 
   - How to verify it?
+  - It is supposed to run with compilation but i can't see the output files chage when changing names in code
+    - maybe it is because the output files emitted to disk only change on build? The Source incorporated in the compilation may change more often?
 - When does the source generator run?
 
 # Source Generators
