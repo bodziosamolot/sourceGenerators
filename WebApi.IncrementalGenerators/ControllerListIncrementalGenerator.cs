@@ -32,7 +32,9 @@ namespace WebApi.IncrementalGenerators
                         _logs.Add($"{Environment.NewLine} [] predicate called on {CSharpExtensions.Kind(node)}:");
                         _logs.Add($"{Environment.NewLine}{node.GetText()}");
                         _logs.Add($"{Environment.NewLine} ----------------- returned: {result}---------------------");
+                        
                         return result;
+                        // return true;
                     },
                     (syntaxContext, token) =>
                     {
@@ -114,7 +116,7 @@ namespace WebApi.IncrementalGenerators
             {
                 SemanticModel semanticModel = compilation.GetSemanticModel(classDeclarationSyntax.SyntaxTree);
                 var controllerSymbol = semanticModel.GetDeclaredSymbol(classDeclarationSyntax) as INamedTypeSymbol;
-                controllerNames.Add($"\"{controllerSymbol.Name}->{string.Join(",", controllerSymbol.Constructors)}\"");
+                controllerNames.Add($"{controllerSymbol.Name}");
             }
 
             var functionInformation = new List<FunctionInformation>();
@@ -131,7 +133,7 @@ namespace WebApi.IncrementalGenerators
             context.AddSource("ControllerListController.Incremental.g.cs",
                 FunctionTextProvider.GetFunctionText(controllerNames, functionInformation));
 
-            CreateLog(context);
+            // CreateLog(context);
         }
 
         private void CreateLog(SourceProductionContext context)

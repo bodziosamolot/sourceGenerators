@@ -15,6 +15,12 @@ extension methods, structs or whatever we decide our generator to create. This i
 compilation artifacts. This new feature is highly configurable so You can easily set it up in such a way that appropriate 
 files are persisted to the disk.
 
+## Basics of the Build process
+
+In order to build a .NET executable or assembly we must use specific tool. Most often it is MSBuild. What it does is it runs the 
+compiler providing it with all the inputs it requires like referenced assemblies, source files, etc. Language specific compiler 
+produces Intermediate Language out of the source code we have written.
+
 ## Roslyn
 
 How is all of this possible? Magic of Roslyn is the answer. This .NET Compiler provides a set of APIs allowing very 
@@ -70,6 +76,9 @@ allows us to get information through Symbols.
 - Syntax Node - 
 - Compilation - 
 - Symbol - 
+- Intermediate Language - 
+- Compiler - Turns source code into Intermediate Language
+- JIT Compiler - Turns Intermediate Language into machine code that can be executed
 
 ### Sources
 
