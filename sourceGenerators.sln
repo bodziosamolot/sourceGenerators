@@ -1,29 +1,24 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30114.105
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32319.34
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApi.IncrementalGenerators", "WebApi.IncrementalGenerators\WebApi.IncrementalGenerators.csproj", "{1DDBA45E-EBE3-45CC-92C5-3E729282D4E9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApi.IncrementalGenerators", "WebApi.IncrementalGenerators\WebApi.IncrementalGenerators.csproj", "{1DDBA45E-EBE3-45CC-92C5-3E729282D4E9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApi.Generators", "WebApi.Generators\WebApi.Generators.csproj", "{E94FE5CA-4992-4133-B0BC-B03205A08D6C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApi.Generators", "WebApi.Generators\WebApi.Generators.csproj", "{E94FE5CA-4992-4133-B0BC-B03205A08D6C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Notes", "Notes", "{72177784-C1AC-423C-A03D-83A62F1729C6}"
 	ProjectSection(SolutionItems) = preProject
-		notes.md = notes.md
 		article.md = article.md
+		notes.md = notes.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApi", "WebApi\WebApi.csproj", "{40603D18-54E9-4ABF-A600-9DDB856107DC}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Netstandard20.IncrementalGenerator", "Netstandard20.IncrementalGenerator\Netstandard20.IncrementalGenerator.csproj", "{385D362E-D39C-4FA7-B49A-6D9617D5380F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApi", "WebApi\WebApi.csproj", "{40603D18-54E9-4ABF-A600-9DDB856107DC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{1DDBA45E-EBE3-45CC-92C5-3E729282D4E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -38,9 +33,11 @@ Global
 		{40603D18-54E9-4ABF-A600-9DDB856107DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{40603D18-54E9-4ABF-A600-9DDB856107DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{40603D18-54E9-4ABF-A600-9DDB856107DC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{385D362E-D39C-4FA7-B49A-6D9617D5380F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{385D362E-D39C-4FA7-B49A-6D9617D5380F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{385D362E-D39C-4FA7-B49A-6D9617D5380F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{385D362E-D39C-4FA7-B49A-6D9617D5380F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D4D075E0-50B5-4B60-969A-AECDECAA862A}
 	EndGlobalSection
 EndGlobal

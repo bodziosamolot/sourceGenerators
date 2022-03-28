@@ -32,7 +32,8 @@ namespace WebApi.IncrementalGenerators
                         _logs.Add($"{Environment.NewLine} [] predicate called on {CSharpExtensions.Kind(node)}:");
                         _logs.Add($"{Environment.NewLine}{node.GetText()}");
                         _logs.Add($"{Environment.NewLine} ----------------- returned: {result}---------------------");
-                        
+
+
                         return result;
                         // return true;
                     },
@@ -116,6 +117,16 @@ namespace WebApi.IncrementalGenerators
             {
                 SemanticModel semanticModel = compilation.GetSemanticModel(classDeclarationSyntax.SyntaxTree);
                 var controllerSymbol = semanticModel.GetDeclaredSymbol(classDeclarationSyntax) as INamedTypeSymbol;
+
+                // context.ReportDiagnostic(Diagnostic.Create(
+                //                 new DiagnosticDescriptor(
+                //                     "TestId",
+                //                     "Non-void method return type",
+                //                     "Method {0} returns {1}. All methods must return void.",
+                //                     "yeet",
+                //                     DiagnosticSeverity.Warning,
+                //                     true), controllerSymbol.Locations.FirstOrDefault(), controllerSymbol.Name, controllerSymbol.Arity));
+
                 controllerNames.Add($"{controllerSymbol.Name}");
             }
 
@@ -130,8 +141,10 @@ namespace WebApi.IncrementalGenerators
                     methodSymbol.ToString(), implementationFlagNames));
             }
 
+            // Task.Delay(6000).ConfigureAwait(false).GetAwaiter().GetResult();
             context.AddSource("ControllerListController.Incremental.g.cs",
                 FunctionTextProvider.GetFunctionText(controllerNames, functionInformation));
+
 
             // CreateLog(context);
         }
