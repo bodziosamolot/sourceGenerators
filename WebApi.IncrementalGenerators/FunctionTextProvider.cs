@@ -24,13 +24,18 @@ public class IncrementalMetadataController : ControllerBase
     [HttpGet(""incremental/controllers"", Name = ""GetControllerNamesIncremental"")]
     public IEnumerable<string> GetControllerNames()
     {{
-       return new List<string>() {{{string.Join(",", controllerNames)}}};
+       return new List<string>() {{{string.Join(",", controllerNames.Select(x=>$"\"{x}\""))}}};
     }}
 
     [HttpGet(""functions"", Name = ""GetFunctionNamesIncremental"")]
     public IEnumerable<string> GetFunctionNames()
     {{
         return new List<string>()  {{{string.Join(",",functionInfos.Select(functionInfo=>$"\"[{functionInfo.Flags}][{functionInfo.Kind}]{functionInfo.ParentClass}.{functionInfo.Name}\""))}}};
+    }}
+
+    public static void {controllerNames.First()}()
+    {{
+        Console.WriteLine(""This is a test"");
     }}
 }}");
         return sourceBuilder.ToString();

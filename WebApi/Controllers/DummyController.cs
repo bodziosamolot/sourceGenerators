@@ -2,10 +2,9 @@
 
 namespace WebApi.Controllers;
 
-public class DummyController: ControllerBase
+public class DummController: ControllerBase
 {
-    public DummyController()
+    public DummController()
     {
-        
     }
 }

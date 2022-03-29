@@ -98,6 +98,7 @@ The extension method from which this symbol was reduced.
 - [Incremental Source Generators documentation that comes with Roslyn](https://github.com/dotnet/roslyn/blob/main/docs/features/incremental-generators.md)
 - [Syntax Tree and Symbol](https://medium.com/@dullohan/the-roslyn-compiler-relating-the-syntax-tree-to-symbols-949eeed59a30)
 - [Nick Chapsas - Build Duration](https://youtu.be/anesVdQg6Dk)
+- [What version of the framework must be targeted by generator project](https://github.com/dotnet/roslyn/issues/49249#issuecomment-782516845)
 
 # Laws of source generators (from [Roslyn Source Generators Never send a human to do a machine's job - Stefan Pölz](https://youtu.be/lJCfPhnFLQs?t=592))
 

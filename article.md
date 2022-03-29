@@ -14,14 +14,16 @@
 In simplest terms a Source Generator is a class that produces code based on other code. The result is available upon 
 compilation. It may seem like magic because without creating any new *.cs files the developer can start using classes, 
 extension methods, structs or whatever we decide our generator to create. This is because it includes the output in 
-compilation artifacts. This new feature is highly configurable so You can easily set it up in such a way that appropriate 
-files are persisted to the disk.
+compilation artifacts. 
 
-## Basics of the Build process
+## Compilation and Build process 
 
-In order to build a .NET executable or assembly we must use specific tool. Most often it is MSBuild. What it does is it runs the 
+We will be talking a lot about the compilation process. It is important not to confuse it with a build. In order to build a .NET 
+executable or assembly we must use a specific tool. Most often it is MSBuild. What it does is it runs the 
 compiler providing it with all the inputs it requires like referenced assemblies, source files, etc. Language specific compiler 
-produces Intermediate Language out of the source code we have written.
+produces Intermediate Language out of the source code and is one of the steps in the build process. Compilation is lighter than build
+and is just one of the steps. This is good because we need compilation to be executed often if we want to use a feature like 
+source generation.
 
 ## Roslyn
 
@@ -64,6 +66,18 @@ allows us to get information through Symbols.
 ## Types of Source Generators
 
 ### Regular Source Generators
+
+## When does the Generator run?
+
+Source generators execute with pretty much every keystroke. In order to observe that behavior You can use my sample code. It has a static
+method in the IncrementalMetadataController that uses the name of a random controller from the project. Whenever You change the name 
+the function name will also change immediately. There is an easy to make mistake here. If the generator does not target the 
+"netstandard2.0" it may not work as expected. It's important to highlight the fact that this requirement concerns the Generator project,
+not the project using the generator. 
+
+Keeping the generated code in sync with source code requires a lot of processing on the Generator part. This creates an obvious problem
+for the IDE. The more work the generator has to do, the more noticable it is in the IDE. The generator code benefits from filtering of
+the syntax tree to limit the amount of work. This became part of the contract in the new type of Generator introduced in .NET 6.0.
 
 ### Incremental Source Generator
 

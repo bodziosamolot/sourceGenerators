@@ -56,7 +56,7 @@ namespace WebApi.IncrementalGenerators
 
                         // SemanticModel provides semantic information. How is it doing that if it does not have access to the compilation? 
                         // It has access to compilation. IncrementalValuesProvider 
-                        if (controllerSymbol is not null)
+                        if (controllerSymbol != null)
                         {
                             _logs.Add(
                                 $"{Environment.NewLine} ---------------------------------------------------------");
@@ -81,13 +81,13 @@ namespace WebApi.IncrementalGenerators
                         {
                             return null;
                         }
-                    }).Where(m => m is not null)!;
+                    }).Where(m => m != null);
 
 
             IncrementalValuesProvider<MethodDeclarationSyntax> functionDeclarations = context.SyntaxProvider
                 .CreateSyntaxProvider(predicate: (node, token) => node is MethodDeclarationSyntax,
                     (syntaxContext, token) => { return (MethodDeclarationSyntax)syntaxContext.Node; })
-                .Where(m => m is not null);
+                .Where(m => m != null);
 
             var compilationAndControllers
                 = context.CompilationProvider.Combine(controllerDeclarations
