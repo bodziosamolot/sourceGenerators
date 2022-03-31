@@ -18,7 +18,8 @@ compilation artifacts.
 
 ## Compilation and Build process 
 
-We will be talking a lot about the compilation process. It is important not to confuse it with a build. In order to build a .NET 
+We will be refering to the compilation a lot. It is important not to confuse it with a build. Build can
+be understood as creation of an executable. In order to build a .NET 
 executable or assembly we must use a specific tool. Most often it is MSBuild. What it does is it runs the 
 compiler providing it with all the inputs it requires like referenced assemblies, source files, etc. Language specific compiler 
 produces Intermediate Language out of the source code and is one of the steps in the build process. Compilation is lighter than build

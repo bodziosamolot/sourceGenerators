@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -12,8 +11,6 @@ namespace WebApi.Generators
     {
         public void Execute(GeneratorExecutionContext context)
         {
-            // Debugger.Launch();
-        
             var controllersSyntax = GetAllClasses(context.Compilation)
                 .Where(classNode => classNode.Identifier.Text.EndsWith("Controller"));
 
@@ -29,10 +26,8 @@ namespace WebApi.Generators
                 return $"\"{controllerSymbol.Name}\"";
             }).Where(x=>x != null).ToList();
 
-            // Build up the source code
             string source = FunctionTextProvider.GetFunctionText(controllerNames);
 
-            // Add the source code to the compilation
             context.AddSource($"ControllerListController.Basic.g.cs", source);
         }
 

@@ -1,10 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Text;
 
 public class FunctionTextProvider
 {
-    public static string GetFunctionText(IEnumerable<string> controllerNames, IEnumerable<FunctionInformation> functionInfos)
+    public static string GetFunctionText(IEnumerable<string> controllerNames)
     {
         var sourceBuilder = new StringBuilder($@"using Microsoft.AspNetCore.Mvc;
 
@@ -25,12 +23,6 @@ public class IncrementalMetadataController : ControllerBase
     public IEnumerable<string> GetControllerNames()
     {{
        return new List<string>() {{{string.Join(",", controllerNames.Select(x=>$"\"{x}\""))}}};
-    }}
-
-    [HttpGet(""functions"", Name = ""GetFunctionNamesIncremental"")]
-    public IEnumerable<string> GetFunctionNames()
-    {{
-        return new List<string>()  {{{string.Join(",",functionInfos.Select(functionInfo=>$"\"[{functionInfo.Flags}][{functionInfo.Kind}]{functionInfo.ParentClass}.{functionInfo.Name}\""))}}};
     }}
 
     public static void {controllerNames.First()}()
