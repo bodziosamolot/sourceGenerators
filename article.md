@@ -38,7 +38,7 @@ about how the compiler works in order to make use of source generators.
 
 ### Syntax Trees and Syntax Analysis
 
-At the most basic level we work with our code as static text. This text is processed by the parser which produces Syntax Trees. Plural because 
+At the most basic level we work with our code as static text. This text is processed by the a parser which produces Syntax Trees. Plural because 
 each source file corresponds to a separate Syntax Tree. Referring 
 to the Compiler Pipeline illustration it corresponds to the "Parser" box. A Syntax Tree is
 a hierarchical representation of text consisting of Syntax Nodes. It is best pictured with the following tools:
@@ -60,10 +60,27 @@ useful but You are missing the context. In order to get more information we need
 
 ### Compilation and Semantic Analysis 
 
-The key to obtaining semantic information about our code is the Compilation. With it we see our constructs not in isolation like in the case of 
-Syntax Trees but in a broader context. This context can be imagined as a compilation unit: an assembly or a project in our solution. So in other 
-words: Compilation can be understood as a bunch of Syntax Trees stuck together allowing to get more information. This is the Semantic Model. It
-allows us to get information through what is called Symbols. 
+Next up in the compilation pipeline there are two separate boxes: Symbols and Metadata Import. The metadata allows the formation of Symbols. 
+They are the key to obtaining semantic information about our code from the Compilation. Why is the metadata required? Some elements are imported into our program
+from assemblies. Metadata allows to get information about those *foreign* objects. There are various types of Symbols. To illustrate what we can learn from a symbol
+lets use an example. [This](https://docs.microsoft.com/en-us/dotnet/api/microsoft.codeanalysis.inamedtypesymbol?view=roslyn-dotnet-4.1.0) is the documentation for
+INamedTypeSymbol. We can learn about such properties as:
+- Arity of the type,
+- List of its constructors,
+- List of interfaces this type implements,
+- If it is static.
+
+This is just a minor part of all things we can learn about the associated code element. With semantic analysis see our constructs not in isolation like in the case of Syntax Trees 
+but in a broader context. This context can be imagined as a compilation unit: an assembly or a project in our solution. So in other 
+words: Compilation can be understood as a bunch of Syntax Trees stuck together with added metadata.
+
+## Analyzers
+
+Source generators are the topic of this article. If we want to build a knowledge base to work with them it is worth mentioning the mechanism they are derived from. Namely: analyzers. 
+They use the same concepts of Syntax Trees and Compilation to inspect the code. They allow to report Diagnostics through the user of [DiagnosticAnalyzer](https://docs.microsoft.com/en-us/dotnet/api/microsoft.codeanalysis.diagnostics.diagnosticanalyzer?view=roslyn-dotnet-4.1.0).
+Diagnostics are those very helpful squiggles that we get in our IDE everytime we do something fishy. The other helpful feature of the IDE enabled by Analyzers are Code Fixes.
+They are implemented with [CodeFixProvider](https://docs.microsoft.com/en-us/dotnet/api/microsoft.codeanalysis.codefixes.codefixprovider?view=roslyn-dotnet-4.1.0) which allows us to get
+useful suggestions on how to fix problems.
 
 ## Types of Source Generators
 
@@ -83,7 +100,12 @@ the syntax tree to limit the amount of work. This became part of the contract in
 
 ### Incremental Source Generator
 
-?? When does an incremental source generator run?
+With each keystroke a new Syntax Tree is produced for the edited part of code. If there is a new Syntax Tree this 
+means the Generator has to execute again. What differentiates the Incremental Source Generator from a regular 
+one is that it has the predicate phase. Predicate is executed for the changes to get the nodes we are interested in. 
+We already know the nodes the predicate selected for changes in other syntax trees so those don't need to be 
+analyzed again. This caching saves a lot of time and improves the IDE experience. The Incremental Generator
+uses the compilation and transforms 
 
 ## Definitions
 
