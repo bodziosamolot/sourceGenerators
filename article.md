@@ -38,7 +38,8 @@ about how the compiler works in order to make use of source generators.
 
 ### Syntax Trees and Syntax Analysis
 
-At the most basic level we work with our code as a static text. This text is processed by the parser which produces a Syntax Tree. Referring 
+At the most basic level we work with our code as static text. This text is processed by the parser which produces Syntax Trees. Plural because 
+each source file corresponds to a separate Syntax Tree. Referring 
 to the Compiler Pipeline illustration it corresponds to the "Parser" box. A Syntax Tree is
 a hierarchical representation of text consisting of Syntax Nodes. It is best pictured with the following tools:
 
@@ -48,11 +49,11 @@ a hierarchical representation of text consisting of Syntax Nodes. It is best pic
 Syntax visualisation of everyones favourite [WeatherForecastController](https://github.com/dotnet/AspNetCore.Docs/blob/main/aspnetcore/tutorials/first-web-api/samples/3.0/TodoApi/Controllers/WeatherForecastController.cs):
 ![Syntax Tree of everyones favourite WeatherForecastController](https://i.imgur.com/AU0veYl.png)
 
-It shows basic building blocks of the tree:
-- Node - Building blocks of the syntax tree consisting of combination of tokens, trivia and other nodes
-- Token - Leaves of the syntax tree. These are elements like keywords or identifiers
-- Trivia - Parts of syntax with really low significance like whitespace or comments
-- Value - Some tokens store the characters they consist of in a separate field called Value 
+It shows elements out of which the Tree is constructed:
+- Node - Basic building blocks of the syntax tree consisting of combination of tokens, trivia and other nodes.
+- Token - Leaves of the syntax tree. These are elements like keywords or identifiers.
+- Trivia - Parts of syntax with really low significance like whitespace or comments.
+- Value - Some tokens store the characters they consist of in a separate field called Value.
 
 Syntax trees are used in what is called *syntax analysis*. You could compare a syntax tree to a diagram of code in one source file. It can be 
 useful but You are missing the context. In order to get more information we need to get to *semantic analysis*.
@@ -62,7 +63,7 @@ useful but You are missing the context. In order to get more information we need
 The key to obtaining semantic information about our code is the Compilation. With it we see our constructs not in isolation like in the case of 
 Syntax Trees but in a broader context. This context can be imagined as a compilation unit: an assembly or a project in our solution. So in other 
 words: Compilation can be understood as a bunch of Syntax Trees stuck together allowing to get more information. This is the Semantic Model. It
-allows us to get information through Symbols. 
+allows us to get information through what is called Symbols. 
 
 ## Types of Source Generators
 
