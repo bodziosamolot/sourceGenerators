@@ -86,26 +86,59 @@ useful suggestions on how to fix problems.
 
 ### Regular Source Generators
 
-## When does the Generator run?
-
-Source generators execute with pretty much every keystroke. In order to observe that behavior You can use my sample code. It has a static
-method in the IncrementalMetadataController that uses the name of a random controller from the project. Whenever You change the name 
-the function name will also change immediately. There is an easy to make mistake here. If the generator does not target the 
-"netstandard2.0" it may not work as expected. It's important to highlight the fact that this requirement concerns the Generator project,
-not the project using the generator. 
-
-Keeping the generated code in sync with source code requires a lot of processing on the Generator part. This creates an obvious problem
-for the IDE. The more work the generator has to do, the more noticable it is in the IDE. The generator code benefits from filtering of
-the syntax tree to limit the amount of work. This became part of the contract in the new type of Generator introduced in .NET 6.0.
+In this article we are focusing on Incremental Source Generators. The name has "Incremental" in it. Are there Non-Incremental Source Generators?
+Yes, there are. They were introduced in .NET 5 but there was a problem with them. All of that processing that happens with each compilation occurs
+very often. Pretty much with every keystroke. This caused the developer experience in the IDE to deteriorate badly. It could be improved by aggressively 
+filtering the syntax processed by our generator but still was not good enough. The mechanism could be improved by introduction of caching and 
+including the filtration in its contract.
 
 ### Incremental Source Generator
 
-With each keystroke a new Syntax Tree is produced for the edited part of code. If there is a new Syntax Tree this 
+That caching is realized through IncrementalValueProvider<T> (and its sibling IncrementalValuesProvider<T>). When working with a generator we will have 
+access to IncrementalGeneratorInitializationContext which allows to get the following providers:
+- CompilationProvider
+- AdditionalTextsProvider
+- AnalyzerConfigOptionsProvider
+- MetadataReferencesProvider
+- ParseOptionsProvider
+
+All of which are utilizing IValueProvider<TSource> e.g., CompilationProvider is IncrementalValueProvider<Compilation>. It realises filtering and transformations
+through a set of operators similar to LINQ:
+- Select
+- SelectMany
+- Where
+- Collect
+- Combine
+
+The provider hides all of the implementation details related with caching. What's important for us is that the provider operators run only for changes. Most of the
+operators listed before are pretty obvious apart from two specific ones.
+
+#### Collect
+
+Can be thought of as similar to materializing operators from LINQ. It allows to obtain ImmutableArray<T> from the provider instead of just individual items one by one.
+
+#### Combine
+
+Like the name says it allows to create a conjunction of two providers. The result will be series of tuples containing values from both providers.
+
+[With each keystroke a new Syntax Tree is produced for the edited part of code. If there is a new Syntax Tree this 
 means the Generator has to execute again. What differentiates the Incremental Source Generator from a regular 
 one is that it has the predicate phase. Predicate is executed for the changes to get the nodes we are interested in. 
 We already know the nodes the predicate selected for changes in other syntax trees so those don't need to be 
 analyzed again. This caching saves a lot of time and improves the IDE experience. The Incremental Generator
-uses the compilation and transforms 
+uses the compilation and transforms]
+
+### When does the Generator run?
+
+Source generators execute with pretty much every keystroke. In order to observe that behavior You can use my sample code. It has a static
+method in the IncrementalMetadataController that uses the name of a random controller from the project. Whenever You change the name
+the function name will also change immediately. There is an easy to make mistake here. If the generator does not target the
+"netstandard2.0" it may not work as expected. It's important to highlight the fact that this requirement concerns the Generator project,
+not the project using the generator.
+
+Keeping the generated code in sync with source code requires a lot of processing on the Generator part. This creates an obvious problem
+for the IDE. The more work the generator has to do, the more noticable it is in the IDE. The generator code benefits from filtering of
+the syntax tree to limit the amount of work. This became part of the contract in the new type of Generator introduced in .NET 6.0.
 
 ## Definitions
 
