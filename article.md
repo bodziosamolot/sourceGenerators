@@ -110,7 +110,6 @@ interface. The interface consists of only one method:
 
 This *IncrementalGeneratorInitializationContext* is what gives us access to all the providers mentioned before. 
 
-`
           public void Initialize(IncrementalGeneratorInitializationContext context)
           {
                 IncrementalValuesProvider<INamedTypeSymbol> controllerDeclarations = context.SyntaxProvider
@@ -119,21 +118,21 @@ This *IncrementalGeneratorInitializationContext* is what gives us access to all 
                             .Identifier.Value.ToString().EndsWith("Controller"),
                         (syntaxContext, token) =>
                         {
-                        var classDeclarationSyntax = syntaxContext.Node as ClassDeclarationSyntax;
-                        if (classDeclarationSyntax is null)
-                        {
-                        return null;
-                        }
+                            var classDeclarationSyntax = syntaxContext.Node as ClassDeclarationSyntax;
+                            if (classDeclarationSyntax is null)
+                            {
+                            return null;
+                            }
 
-                        var controllerSymbol =
-                            syntaxContext.SemanticModel.GetDeclaredSymbol(classDeclarationSyntax) as INamedTypeSymbol;
-                        if (controllerSymbol != null && controllerSymbol.BaseType.Name == nameof(ControllerBase))
-                        {
-                            return controllerSymbol;
-                        }
+                            var controllerSymbol =
+                                syntaxContext.SemanticModel.GetDeclaredSymbol(classDeclarationSyntax) as INamedTypeSymbol;
+                            if (controllerSymbol != null && controllerSymbol.BaseType.Name == nameof(ControllerBase))
+                            {
+                                return controllerSymbol;
+                            }
 
-                        return null;
-                    }).Where(m => m != null);
+                            return null;
+                        }).Where(m => m != null);
 
                 ...
           }
