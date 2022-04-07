@@ -102,6 +102,14 @@ access to IncrementalGeneratorInitializationContext which allows to get the foll
 - MetadataReferencesProvider
 - ParseOptionsProvider
 
+It is best explained with an example. I will skim over some important parts of an Incremental Source Generator to get to the vital parts. 
+The Generator has to implement the [IIncrementalGenerator](https://docs.microsoft.com/en-us/dotnet/api/microsoft.codeanalysis.iincrementalgenerator?view=roslyn-dotnet-4.1.0)
+interface. The interface consists of only one method:
+
+`Initialize(IncrementalGeneratorInitializationContext)`
+
+This *IncrementalGeneratorInitializationContext* is what gives us access to all the providers mentioned before. 
+
 All of which are utilizing IValueProvider<TSource> e.g., CompilationProvider is IncrementalValueProvider<Compilation>. It realises filtering and transformations
 through a set of operators similar to LINQ:
 - Select

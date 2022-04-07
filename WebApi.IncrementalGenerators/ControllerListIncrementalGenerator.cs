@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -9,12 +10,7 @@ namespace WebApi.IncrementalGenerators
     {
         public void Initialize(IncrementalGeneratorInitializationContext context)
         {
-            // if (!Debugger.IsAttached)
-            // {
-            // Debugger.Launch();
-            // }
-
-            IncrementalValuesProvider<ClassDeclarationSyntax> controllerDeclarations = context.SyntaxProvider
+            IncrementalValuesProvider<INamedTypeSymbol> controllerDeclarations = context.SyntaxProvider
                 .CreateSyntaxProvider(
                     predicate: (node, token) =>
                     {
@@ -31,21 +27,12 @@ namespace WebApi.IncrementalGenerators
 
                         var controllerSymbol =
                             syntaxContext.SemanticModel.GetDeclaredSymbol(classDeclarationSyntax) as INamedTypeSymbol;
-                        if (controllerSymbol != null)
+                        if (controllerSymbol != null && controllerSymbol.BaseType.Name == nameof(ControllerBase))
                         {
-                            return classDeclarationSyntax;
+                            return controllerSymbol;
                         }
 
-                        if (classDeclarationSyntax.Identifier.Value.ToString().EndsWith("Controller") &&
-                            classDeclarationSyntax.BaseList.Types.Any(baseType =>
-                                baseType.ToString().StartsWith("Controller")))
-                        {
-                            return classDeclarationSyntax;
-                        }
-                        else
-                        {
-                            return null;
-                        }
+                        return null;
                     }).Where(m => m != null);
 
 
@@ -57,29 +44,23 @@ namespace WebApi.IncrementalGenerators
             var compilationAndControllers
                 = context.CompilationProvider.Combine(controllerDeclarations
                     .Collect()).Combine(functionDeclarations
-                    .Collect()); 
+                    .Collect());
 
             context.RegisterSourceOutput(compilationAndControllers,
-                (spc, source) => Execute(source.Left.Left, source.Left.Right, source.Right, spc));
+                (spc, source) => Execute(source.Left.Left, source.Left.Right, spc));
         }
 
-        void Execute(Compilation compilation, ImmutableArray<ClassDeclarationSyntax> controllers,
-            ImmutableArray<MethodDeclarationSyntax> functions,
+        void Execute(Compilation compilation, ImmutableArray<INamedTypeSymbol> controllerSymbols,
             SourceProductionContext context)
         {
-            if (controllers.IsDefaultOrEmpty)
+            if (controllerSymbols.IsDefaultOrEmpty)
             {
                 return;
             }
 
             var controllerNames = new List<string>();
-            // I'm not sure if this is actually necessary, but `[LoggerMessage]` does it, so seems like a good idea!
-            IEnumerable<ClassDeclarationSyntax> distinctControllers = controllers.Distinct();
-            foreach (var classDeclarationSyntax in distinctControllers)
+            foreach (var controllerSymbol in controllerSymbols)
             {
-                SemanticModel semanticModel = compilation.GetSemanticModel(classDeclarationSyntax.SyntaxTree);
-                var controllerSymbol = semanticModel.GetDeclaredSymbol(classDeclarationSyntax) as INamedTypeSymbol;
-
                 controllerNames.Add($"{controllerSymbol.Name}");
             }
 
