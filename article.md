@@ -110,6 +110,35 @@ interface. The interface consists of only one method:
 
 This *IncrementalGeneratorInitializationContext* is what gives us access to all the providers mentioned before. 
 
+`
+          public void Initialize(IncrementalGeneratorInitializationContext context)
+          {
+                IncrementalValuesProvider<INamedTypeSymbol> controllerDeclarations = context.SyntaxProvider
+                    .CreateSyntaxProvider(
+                        (node, token) => node is ClassDeclarationSyntax && ((ClassDeclarationSyntax)node)
+                            .Identifier.Value.ToString().EndsWith("Controller"),
+                        (syntaxContext, token) =>
+                        {
+                        var classDeclarationSyntax = syntaxContext.Node as ClassDeclarationSyntax;
+                        if (classDeclarationSyntax is null)
+                        {
+                        return null;
+                        }
+
+                        var controllerSymbol =
+                            syntaxContext.SemanticModel.GetDeclaredSymbol(classDeclarationSyntax) as INamedTypeSymbol;
+                        if (controllerSymbol != null && controllerSymbol.BaseType.Name == nameof(ControllerBase))
+                        {
+                            return controllerSymbol;
+                        }
+
+                        return null;
+                    }).Where(m => m != null);
+
+                ...
+          }
+`
+
 All of which are utilizing IValueProvider<TSource> e.g., CompilationProvider is IncrementalValueProvider<Compilation>. It realises filtering and transformations
 through a set of operators similar to LINQ:
 - Select
