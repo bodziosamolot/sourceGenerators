@@ -102,13 +102,16 @@ access to IncrementalGeneratorInitializationContext which allows to get the foll
 - MetadataReferencesProvider
 - ParseOptionsProvider
 
+All of which are utilizing IValueProvider<TSource> e.g., CompilationProvider is IncrementalValueProvider<Compilation>.
+The provider hides all of the implementation details related with caching. What's important for us is that the provider operators run only for changes.
+
 It is best explained with an example. I will skim over some important parts of an Incremental Source Generator to get to the vital parts. 
 The Generator has to implement the [IIncrementalGenerator](https://docs.microsoft.com/en-us/dotnet/api/microsoft.codeanalysis.iincrementalgenerator?view=roslyn-dotnet-4.1.0)
 interface. The interface consists of only one method:
 
 `Initialize(IncrementalGeneratorInitializationContext)`
 
-This *IncrementalGeneratorInitializationContext* is what gives us access to all the providers mentioned before. 
+This *IncrementalGeneratorInitializationContext* is what gives us access to all the providers mentioned before. Here it is in an example implementation:
 
           public void Initialize(IncrementalGeneratorInitializationContext context)
           {
@@ -119,10 +122,6 @@ This *IncrementalGeneratorInitializationContext* is what gives us access to all 
                         (syntaxContext, token) =>
                         {
                             var classDeclarationSyntax = syntaxContext.Node as ClassDeclarationSyntax;
-                            if (classDeclarationSyntax is null)
-                            {
-                            return null;
-                            }
 
                             var controllerSymbol =
                                 syntaxContext.SemanticModel.GetDeclaredSymbol(classDeclarationSyntax) as INamedTypeSymbol;
@@ -136,18 +135,24 @@ This *IncrementalGeneratorInitializationContext* is what gives us access to all 
 
                 ...
           }
-`
 
-All of which are utilizing IValueProvider<TSource> e.g., CompilationProvider is IncrementalValueProvider<Compilation>. It realises filtering and transformations
-through a set of operators similar to LINQ:
+What the code above does is:
+- It uses the `context.SyntaxProvider.CreateSyntaxProvider()` to construct the filtering pipeline. You can see two lambda functions:
+  - the first one is called the *predicate* and is the first level of filtration which processes the syntax,
+  - the second one is called the *transform* and is used to obtain semantic information from the syntax that got through the predicate
+- In our generator the *predicate* looks through the syntax for nodes which represent a class whose name ends with "Controller"
+- The *transform* step uses the node to obtain the semantic information and check if the base of the class we are checking is of the *ControllerBase* type
+- The `context.SyntaxProvider.CreateSyntaxProvider()` returns the `IncrementalValuesProvider<INamedTypeSymbol>` which we already know does all of the caching magic.
+
+The code ends with a `Where(m => m != null)`. This is not a LINQ operator. It behaves in a similar fashion but it is an *IValueProvider* extension method.
+There are other similar ones:
 - Select
 - SelectMany
 - Where
 - Collect
 - Combine
 
-The provider hides all of the implementation details related with caching. What's important for us is that the provider operators run only for changes. Most of the
-operators listed before are pretty obvious apart from two specific ones.
+Collect and combine don't have their counterparts in LINQ.
 
 #### Collect
 

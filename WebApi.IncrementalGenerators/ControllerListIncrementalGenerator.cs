@@ -13,15 +13,10 @@ namespace WebApi.IncrementalGenerators
             IncrementalValuesProvider<INamedTypeSymbol> controllerDeclarations = context.SyntaxProvider
                 .CreateSyntaxProvider(
                     (node, token) => node is ClassDeclarationSyntax && ((ClassDeclarationSyntax)node)
-                            .Identifier.Value.ToString().EndsWith("Controller"),
+                        .Identifier.Value.ToString().EndsWith("Controller"),
                     (syntaxContext, token) =>
                     {
                         var classDeclarationSyntax = syntaxContext.Node as ClassDeclarationSyntax;
-                        if (classDeclarationSyntax is null)
-                        {
-                            return null;
-                        }
-
                         var controllerSymbol =
                             syntaxContext.SemanticModel.GetDeclaredSymbol(classDeclarationSyntax) as INamedTypeSymbol;
                         if (controllerSymbol != null && controllerSymbol.BaseType.Name == nameof(ControllerBase))
@@ -32,7 +27,13 @@ namespace WebApi.IncrementalGenerators
                         return null;
                     }).Where(m => m != null);
 
-                ...
+
+            var compilationAndControllers
+                = context.CompilationProvider.Combine(controllerDeclarations
+                    .Collect());
+
+            context.RegisterSourceOutput(compilationAndControllers,
+                (spc, source) => Execute(source.Left, source.Right, spc));
         }
 
         void Execute(Compilation compilation, ImmutableArray<INamedTypeSymbol> controllerSymbols,
