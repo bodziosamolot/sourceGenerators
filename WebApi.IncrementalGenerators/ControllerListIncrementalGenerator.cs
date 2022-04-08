@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -10,6 +11,8 @@ namespace WebApi.IncrementalGenerators
     {
         public void Initialize(IncrementalGeneratorInitializationContext context)
         {
+            Debugger.Launch(); 
+            
             IncrementalValuesProvider<INamedTypeSymbol> controllerDeclarations = context.SyntaxProvider
                 .CreateSyntaxProvider(
                     (node, token) => node is ClassDeclarationSyntax && ((ClassDeclarationSyntax)node)

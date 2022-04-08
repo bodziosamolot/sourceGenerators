@@ -1,13 +1,4 @@
-﻿# Questions
-
-- When does the incremental source generator run? 
-  - Is it at every keystroke? 
-  - How to verify it?
-  - It is supposed to run with compilation but i can't see the output files chage when changing names in code
-    - maybe it is because the output files emitted to disk only change on build? The Source incorporated in the compilation may change more often?
-- When does the source generator run?
-
-# Source Generators
+﻿# Source Generators
 
 ## Introduction
 
@@ -105,7 +96,7 @@ access to IncrementalGeneratorInitializationContext which allows to get the foll
 All of which are utilizing IValueProvider<TSource> e.g., CompilationProvider is IncrementalValueProvider<Compilation>.
 The provider hides all of the implementation details related with caching. What's important for us is that the provider operators run only for changes.
 
-It is best explained with an example. I will skim over some important parts of an Incremental Source Generator to get to the vital parts. 
+It is best explained with an example. I will skim over some important parts of an Incremental Source Generator to get to the vital parts first. 
 The Generator has to implement the [IIncrementalGenerator](https://docs.microsoft.com/en-us/dotnet/api/microsoft.codeanalysis.iincrementalgenerator?view=roslyn-dotnet-4.1.0)
 interface. The interface consists of only one method:
 
@@ -162,24 +153,150 @@ Can be thought of as similar to materializing operators from LINQ. It allows to 
 
 Like the name says it allows to create a conjunction of two providers. The result will be series of tuples containing values from both providers.
 
-[With each keystroke a new Syntax Tree is produced for the edited part of code. If there is a new Syntax Tree this 
-means the Generator has to execute again. What differentiates the Incremental Source Generator from a regular 
-one is that it has the predicate phase. Predicate is executed for the changes to get the nodes we are interested in. 
-We already know the nodes the predicate selected for changes in other syntax trees so those don't need to be 
-analyzed again. This caching saves a lot of time and improves the IDE experience. The Incremental Generator
-uses the compilation and transforms]
+Those operators are relevant for the rest of our pipeline which after completing looks as follows:
 
-### When does the Generator run?
+        public void Initialize(IncrementalGeneratorInitializationContext context)
+        {
+            IncrementalValuesProvider<INamedTypeSymbol> controllerDeclarations = context.SyntaxProvider
+                .CreateSyntaxProvider(
+                    (node, token) => node is ClassDeclarationSyntax && ((ClassDeclarationSyntax)node)
+                        .Identifier.Value.ToString().EndsWith("Controller"),
+                    (syntaxContext, token) =>
+                    {
+                        var classDeclarationSyntax = syntaxContext.Node as ClassDeclarationSyntax;
+                        var controllerSymbol =
+                            syntaxContext.SemanticModel.GetDeclaredSymbol(classDeclarationSyntax) as INamedTypeSymbol;
+                        if (controllerSymbol != null && controllerSymbol.BaseType.Name == nameof(ControllerBase))
+                        {
+                            return controllerSymbol;
+                        }
 
-Source generators execute with pretty much every keystroke. In order to observe that behavior You can use my sample code. It has a static
-method in the IncrementalMetadataController that uses the name of a random controller from the project. Whenever You change the name
-the function name will also change immediately. There is an easy to make mistake here. If the generator does not target the
-"netstandard2.0" it may not work as expected. It's important to highlight the fact that this requirement concerns the Generator project,
-not the project using the generator.
+                        return null;
+                    }).Where(m => m != null);
 
-Keeping the generated code in sync with source code requires a lot of processing on the Generator part. This creates an obvious problem
-for the IDE. The more work the generator has to do, the more noticable it is in the IDE. The generator code benefits from filtering of
-the syntax tree to limit the amount of work. This became part of the contract in the new type of Generator introduced in .NET 6.0.
+
+            var compilationAndControllers
+                = context.CompilationProvider.Combine(controllerDeclarations
+                    .Collect());
+
+            context.RegisterSourceOutput(compilationAndControllers,
+                (spc, source) => Execute(source.Left, source.Right, spc));
+        }
+
+Because the CompilationProvider is an IValueProvider we can obtain its instance only through the operators listed earlier. The details
+of how the code is generated are hidden in the Execute method. What is important to underline is the fact that the code we see
+in this Initialize() method only deals with *registering* the pipeline. All of those registered lambdas will execute whenever the context provides relevant changes in
+the syntax. All of those changes will be passed to the function used in RegisterSourceOutput. In our case it passed processing further to the Execute method:
+
+        void Execute(Compilation compilation, ImmutableArray<INamedTypeSymbol> controllerSymbols,
+            SourceProductionContext context)
+        {
+            if (controllerSymbols.IsDefaultOrEmpty)
+            {
+                return;
+            }
+
+            var controllerNames = new List<string>();
+            foreach (var controllerSymbol in controllerSymbols)
+            {
+                controllerNames.Add($"{controllerSymbol.Name}");
+            }
+
+            context.AddSource("ControllerListController.Incremental.g.cs",
+                FunctionTextProvider.GetFunctionText(controllerNames));
+        }
+
+The most relevant part here is the SourceProductionContext and its AddSource() method. The method accepts the name of the output file and the template to inject
+values into. The template is nothing sophisticated in case of our example. It is just a class with a static method that provides the text and placeholders
+for values provided from the generator:
+
+    public static string GetFunctionText(IEnumerable<string> controllerNames)
+    {
+        var sourceBuilder = new StringBuilder($@"using Microsoft.AspNetCore.Mvc;
+
+            namespace WebApi.Controllers;
+
+            [ApiController]
+            [Route(""[controller]"")]
+            public class IncrementalMetadataController : ControllerBase
+            {{
+                private readonly ILogger<IncrementalMetadataController> _logger;
+
+                public IncrementalMetadataController(ILogger<IncrementalMetadataController> logger)
+                {{
+                    _logger = logger;
+                }}
+
+                [HttpGet(""incremental/controllers"", Name = ""GetControllerNamesIncremental"")]
+                public IEnumerable<string> GetControllerNames()
+                {{
+                   return new List<string>() {{{string.Join(",", controllerNames.Select(x=>$"\"{x}\""))}}};
+                }}
+
+                public static void {controllerNames.First()}()
+                {{
+                    Console.WriteLine(""This is a test"");
+                }}
+            }}");
+        return sourceBuilder.ToString();
+    }
+
+By looking at the template we can easily come up with what the generator actually does: it provides a very useful functionality of 
+listing the controllers defined in our ASP.NET application. That shows that most of the work done in the generator is extracting the values
+to combine with the template.
+
+## Generators at work
+
+How do we know if our generator works? All You need to do is execute the app after cloning it from the [repo](https://github.com/bodziosamolot/sourceGenerators).
+You will notice that nowhere does it define the IncrementalMetadataController but after running it and visiting the `https://localhost:7259/IncrementalMetadata/incremental/controllers`
+address You will get a response listing all of the controllers defined.
+
+There is also a different way of verifying what was produced:
+
+      <Project Sdk="Microsoft.NET.Sdk.Web">
+
+          <PropertyGroup>
+              <TargetFramework>net6.0</TargetFramework>
+              ... 
+              <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+              <CompilerGeneratedFilesOutputPath>$(BaseIntermediateOutputPath)\GeneratedFiles</CompilerGeneratedFilesOutputPath>
+          </PropertyGroup>
+
+          ...
+
+          <ItemGroup>
+              <ProjectReference Include="..\WebApi.IncrementalGenerators\WebApi.IncrementalGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+          </ItemGroup>
+
+      </Project>
+
+The EmitCompilerGeneratedFiles and CompilerGeneratedFilesOutputPath properties allow to save the generated code to disk. 
+There is a caveat: the generator works pretty much with every keystroke but the files are saved only on build. To observe that behaviour 
+I've added a static method in the controller that has the name of the first Controller in our app. If You change the name of the `DummyController` the
+name of the static method on the IncrementalMetadataController should update immediately in the IDE but not on disk. It will synchronise on disk only
+after a build. I've noticed some irregularities in how this mechanism is acting so I wouldn't rely on this. Usually restarting Rider helped.
+
+# Debugging the Source Generator
+
+Unfortunately the code that we write does not always produce the results we have expected. How can we debug a Source Generator? It is a bit 
+awkward. In order to break on Generator execution You need to add the following line to it:
+
+`Debugger.Launch()`
+
+When the Generator executes You will be presented with a prompt with the choice of IDE's to use for the debugging session:
+
+![JIT Debugger Prompt](https://i.imgur.com/lEseLeh.png)
+
+When using Rider, make sure You have the correct Debugger option selected:
+
+![Rider JIT Debugger settings](https://i.imgur.com/9oaw7X6.png)
+
+# Summary
+
+This looks pretty cool but where to use this magic? The simplest answer is that in some scenarios Source Generators are a very good substitution for reflection. 
+The biggest benefit in such a case is that there is no performance penalty associated with reflection because the analysis is not done in runtime but at compile time 
+so before our program actually runs. One of the best examples of performance improvements that can be achieved is the described in the great [article](https://andrewlock.net/netescapades-enumgenerators-a-source-generator-for-enum-performance/)
+by [Andrew Lock](https://andrewlock.net/)
 
 ## Definitions
 
@@ -196,6 +313,7 @@ the syntax tree to limit the amount of work. This became part of the contract in
 
 ### Sources
 
+- [List of Source Generators](https://github.com/amis92/csharp-source-generators)
 - https://docs.microsoft.com/en-us/dotnet/csharp/roslyn-sdk/compiler-api-model
 - https://joshvarty.com/2014/07/06/learn-roslyn-now-part-2-analyzing-syntax-trees-with-linq
 - [Syntax vs Semantics](https://stackoverflow.com/questions/17930267/what-is-the-difference-between-syntax-and-semantics-in-programming-languages)

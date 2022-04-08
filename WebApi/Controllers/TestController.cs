@@ -6,6 +6,5 @@ public class Test2Controller: ControllerBase
 {
     public Test2Controller()
    {
-        
     } 
 }
