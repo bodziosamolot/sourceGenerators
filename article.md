@@ -38,6 +38,7 @@ a hierarchical representation of text consisting of Syntax Nodes. It is best pic
 - Syntax Visualizer (with Directed Syntax Graph in Ultimate editions of Visual Studio)
 
 Syntax visualisation of everyones favourite [WeatherForecastController](https://github.com/dotnet/AspNetCore.Docs/blob/main/aspnetcore/tutorials/first-web-api/samples/3.0/TodoApi/Controllers/WeatherForecastController.cs):
+
 ![Syntax Tree of everyones favourite WeatherForecastController](https://i.imgur.com/AU0veYl.png)
 
 It shows elements out of which the Tree is constructed:
