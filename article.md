@@ -115,8 +115,8 @@ in this article is a functional one but it distilled so that we can focus on the
 
           public void Initialize(IncrementalGeneratorInitializationContext context)
           {
-                IncrementalValuesProvider<INamedTypeSymbol> controllerDeclarations = **context.SyntaxProvider
-                    .CreateSyntaxProvider**(
+                IncrementalValuesProvider<INamedTypeSymbol> controllerDeclarations = context.SyntaxProvider
+                    .CreateSyntaxProvider(
                         (node, token) => node is ClassDeclarationSyntax && ((ClassDeclarationSyntax)node)
                             .Identifier.Value.ToString().EndsWith("Controller"),
                         (syntaxContext, token) =>
@@ -137,14 +137,17 @@ in this article is a functional one but it distilled so that we can focus on the
           }
 
 What the code above does is:
-- It uses the `context.SyntaxProvider.CreateSyntaxProvider()` to construct the filtering pipeline. You can see two lambda functions:
+- It uses the `context.SyntaxProvider.CreateSyntaxProvider()` to construct the filtering pipeline. It consists of two lambda functions:
   - the first one is called the *predicate* and is the first level of filtration which processes the syntax,
   - the second one is called the *transform* and is used to obtain semantic information from the syntax that got through the predicate
 - In our generator the *predicate* looks through the syntax for nodes which represent a class whose name ends with "Controller"
 - The *transform* step uses the node to obtain the semantic information and check if the base of the class we are checking is of the *ControllerBase* type
 - The `context.SyntaxProvider.CreateSyntaxProvider()` returns the `IncrementalValuesProvider<INamedTypeSymbol>` which we already know does all of the caching magic.
 
-The code ends with a `Where(m => m != null)`. This is not a LINQ operator. It behaves in a similar fashion but it is an *IValueProvider* extension method.
+It's important to underline that splitting the process into the predicate and transform is a window optimisation. It should do a lightweight check to quickly filter the incoming
+syntax. If the work it does is time consuming the experience in the ide will quickly become unbearable.
+
+The code ends with a `Where(m => m != null)`. This is not a LINQ operator. It behaves in a similar way but it is an *IValueProvider* extension method.
 There are other similar ones:
 - Select
 - SelectMany
