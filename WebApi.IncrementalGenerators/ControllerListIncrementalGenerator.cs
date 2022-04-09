@@ -11,7 +11,7 @@ namespace WebApi.IncrementalGenerators
     {
         public void Initialize(IncrementalGeneratorInitializationContext context)
         {
-            Debugger.Launch(); 
+            // Debugger.Launch(); 
             
             IncrementalValuesProvider<INamedTypeSymbol> controllerDeclarations = context.SyntaxProvider
                 .CreateSyntaxProvider(

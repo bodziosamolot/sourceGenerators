@@ -2,30 +2,35 @@
 
 ## Introduction
 
-In simplest terms a Source Generator is a class that produces code based on other code. The result is available upon 
+In simple terms a Source Generator is a class that produces code based on other code. The result is available upon 
 compilation. It may seem like magic because without creating any new *.cs files the developer can start using classes, 
-extension methods, structs or whatever we decide our generator to create. This is because it includes the output in 
-compilation artifacts. 
+extension methods, structs or whatever we decide our Generator to create. This is because it includes the output in 
+compilation artifacts. In this article I want to provide the basic knowledge required to write a simple Incremental
+Source Generator. There is a lot the developer has to know about what the compiler is and how it sees and processes
+the code we feed to it.
 
 ## Compilation and Build process 
 
-We will be refering to the compilation a lot. It is important not to confuse it with a build. Build can
+We will be referring to the compilation a lot. It is important not to confuse it with a build. Build can
 be understood as creation of an executable. In order to build a .NET 
 executable or assembly we must use a specific tool. Most often it is MSBuild. What it does is it runs the 
 compiler providing it with all the inputs it requires like referenced assemblies, source files, etc. Language specific compiler 
 produces Intermediate Language out of the source code and is one of the steps in the build process. Compilation is lighter than build
-and is just one of the steps. This is good because we need compilation to be executed often if we want to use a feature like 
-source generation.
+and is just one of its components. This is good because we need compilation to be executed often if we want to use the Compiler API and 
+its richness.
 
 ## Roslyn
 
-How is all of this possible? Magic of Roslyn is the answer. This .NET Compiler provides a set of APIs allowing very 
-powerful features like: code metrics, analyzers and source generators.
+Roslyn is the name used for .NET Compiler. It is open source and includes versions for C# and Visual Basic. Roslyn exposes various types of APIs:
+- Compiler APIs - Corresponding to phases of the Compiler Pipeline. We will use mostly those api for our Generator.
+- Diagnostic APIs - If You see colored squiggles in Your IDE that's thanks to the Diagnostic API.
+- Scripting APIs - Allow to use C# as a scripting language.
+- Workspace APIs - Allow to work with how our program is structured i.e. Solution, Project.
 
 ![Compiler pipeline from https://docs.microsoft.com/en-us/dotnet/csharp/roslyn-sdk/compiler-api-model](https://docs.microsoft.com/en-us/dotnet/csharp/roslyn-sdk/media/compiler-api-model/compiler-pipeline-api.png)
 
-The picture above shows the compiler pipeline and APIs corresponding to its phases. We will need some fundamental knowledge 
-about how the compiler works in order to make use of source generators.
+The picture above shows the Compiler Pipeline and APIs corresponding to its phases. We will need some fundamental knowledge 
+about how the Compiler works in order to make use of source generators.
 
 ### Syntax Trees and Syntax Analysis
 
@@ -37,15 +42,15 @@ a hierarchical representation of text consisting of Syntax Nodes. It is best pic
 - [Syntax Tree Viewer in Rider](https://plugins.jetbrains.com/plugin/16356-syntax-visualizer-for-rider)
 - Syntax Visualizer (with Directed Syntax Graph in Ultimate editions of Visual Studio)
 
-Syntax visualisation of everyones favourite [WeatherForecastController](https://github.com/dotnet/AspNetCore.Docs/blob/main/aspnetcore/tutorials/first-web-api/samples/3.0/TodoApi/Controllers/WeatherForecastController.cs):
+Syntax visualisation of everyone's favourite [WeatherForecastController](https://github.com/dotnet/AspNetCore.Docs/blob/main/aspnetcore/tutorials/first-web-api/samples/3.0/TodoApi/Controllers/WeatherForecastController.cs):
 
 ![Syntax Tree of everyones favourite WeatherForecastController](https://i.imgur.com/AU0veYl.png)
 
 It shows elements out of which the Tree is constructed:
-- Node - Basic building blocks of the syntax tree consisting of combination of tokens, trivia and other nodes.
-- Token - Leaves of the syntax tree. These are elements like keywords or identifiers.
+- Nodes - Basic building blocks of the syntax tree consisting of combination of tokens, trivia and other nodes.
+- Tokens - Leaves of the syntax tree. These are elements like keywords or identifiers.
 - Trivia - Parts of syntax with really low significance like whitespace or comments.
-- Value - Some tokens store the characters they consist of in a separate field called Value.
+- Values - Some tokens store the characters they consist of in a separate field called Value.
 
 Syntax trees are used in what is called *syntax analysis*. You could compare a syntax tree to a diagram of code in one source file. It can be 
 useful but You are missing the context. In order to get more information we need to get to *semantic analysis*.
@@ -62,17 +67,18 @@ INamedTypeSymbol. We can learn about such properties as:
 - List of interfaces this type implements,
 - If it is static.
 
-This is just a minor part of all things we can learn about the associated code element. With semantic analysis see our constructs not in isolation like in the case of Syntax Trees 
-but in a broader context. This context can be imagined as a compilation unit: an assembly or a project in our solution. So in other 
+This is just a minor part of all the information we can get about the associated code element. With semantic analysis we see our constructs not in isolation like in the case of Syntax Trees 
+but in a broader landscape. This context can be imagined as a compilation unit: an assembly or a project in our solution. So in other 
 words: Compilation can be understood as a bunch of Syntax Trees stuck together with added metadata.
 
 ## Analyzers
 
-Source generators are the topic of this article. If we want to build a knowledge base to work with them it is worth mentioning the mechanism they are derived from. Namely: analyzers. 
-They use the same concepts of Syntax Trees and Compilation to inspect the code. They allow to report Diagnostics through the user of [DiagnosticAnalyzer](https://docs.microsoft.com/en-us/dotnet/api/microsoft.codeanalysis.diagnostics.diagnosticanalyzer?view=roslyn-dotnet-4.1.0).
+We can use all of that information in various ways. Source generators are the topic of this article. If we want to build a knowledge base to work with them it 
+is worth mentioning the mechanism they are derived from. Namely: analyzers. They use the same concepts of Syntax Trees and Compilation to inspect the code. 
+They allow to report Diagnostics through the use of [DiagnosticAnalyzer](https://docs.microsoft.com/en-us/dotnet/api/microsoft.codeanalysis.diagnostics.diagnosticanalyzer?view=roslyn-dotnet-4.1.0).
 Diagnostics are those very helpful squiggles that we get in our IDE everytime we do something fishy. The other helpful feature of the IDE enabled by Analyzers are Code Fixes.
 They are implemented with [CodeFixProvider](https://docs.microsoft.com/en-us/dotnet/api/microsoft.codeanalysis.codefixes.codefixprovider?view=roslyn-dotnet-4.1.0) which allows us to get
-useful suggestions on how to fix problems.
+useful suggestions on how to fix problems. A Source Generator is an unusual Analyzer which apart from inspecting code, produces it based on the results of that inspection.
 
 ## Types of Source Generators
 
@@ -87,28 +93,30 @@ including the filtration in its contract.
 ### Incremental Source Generator
 
 That caching is realized through IncrementalValueProvider<T> (and its sibling IncrementalValuesProvider<T>). When working with a generator we will have 
-access to IncrementalGeneratorInitializationContext which allows to get the following providers:
-- CompilationProvider
-- AdditionalTextsProvider
-- AnalyzerConfigOptionsProvider
-- MetadataReferencesProvider
-- ParseOptionsProvider
+access to IncrementalGeneratorInitializationContext which allows to get the to a set of providers. They are the points through which we can work with different
+components of our program:
+- SyntaxProvider - this provider will serve us changes in the syntax of our program.
+- CompilationProvider - is the gateway to Semantic Analysis.
+- AdditionalTextsProvider - allows to obtain files with static content included in the project.
+- MetadataReferencesProvider - providers information about referenced assemblies.
+- AnalyzerConfigOptionsProvider & ParseOptionsProvider - allows to read configuration values.
 
 All of which are utilizing IValueProvider<TSource> e.g., CompilationProvider is IncrementalValueProvider<Compilation>.
 The provider hides all of the implementation details related with caching. What's important for us is that the provider operators run only for changes.
 
-It is best explained with an example. I will skim over some important parts of an Incremental Source Generator to get to the vital parts first. 
+It is best explained with an example. I will skim over some important parts of an Incremental Source Generator to get to the vital ones first. 
 The Generator has to implement the [IIncrementalGenerator](https://docs.microsoft.com/en-us/dotnet/api/microsoft.codeanalysis.iincrementalgenerator?view=roslyn-dotnet-4.1.0)
 interface. The interface consists of only one method:
 
 `Initialize(IncrementalGeneratorInitializationContext)`
 
-This *IncrementalGeneratorInitializationContext* is what gives us access to all the providers mentioned before. Here it is in an example implementation:
+This *IncrementalGeneratorInitializationContext* is what gives us access to all the providers mentioned before. It is worth mentioning that the implementation of Incremental Source Generator
+in this article is a functional one but it distilled so that we can focus on the most important things. It lacks some checks and operations You would normally add. 
 
           public void Initialize(IncrementalGeneratorInitializationContext context)
           {
-                IncrementalValuesProvider<INamedTypeSymbol> controllerDeclarations = context.SyntaxProvider
-                    .CreateSyntaxProvider(
+                IncrementalValuesProvider<INamedTypeSymbol> controllerDeclarations = **context.SyntaxProvider
+                    .CreateSyntaxProvider**(
                         (node, token) => node is ClassDeclarationSyntax && ((ClassDeclarationSyntax)node)
                             .Identifier.Value.ToString().EndsWith("Controller"),
                         (syntaxContext, token) =>
