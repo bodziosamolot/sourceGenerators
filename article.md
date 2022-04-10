@@ -283,10 +283,11 @@ There is also a different way of verifying what was produced:
       </Project>
 
 The EmitCompilerGeneratedFiles and CompilerGeneratedFilesOutputPath properties allow to save the generated code to disk. 
-There is a caveat: the generator works pretty much with every keystroke but the files are saved only on build. To observe that behaviour 
+There is a caveat: the generator works pretty much on every keystroke but the files are saved only on build. To observe that behaviour 
 I've added a static method in the controller that has the name of the first Controller in our app. If You change the name of the `DummyController` the
 name of the static method on the IncrementalMetadataController should update immediately in the IDE but not on disk. It will synchronise on disk only
-after a build. I've noticed some irregularities in how this mechanism is acting so I wouldn't rely on this. Usually restarting Rider helped.
+after a build. I've noticed some irregularities in how this mechanism is acting so I wouldn't rely on it. I was surprised that although breaking from time to time 
+it worked better in Rider (version 2021.3.3) than in Visual Studio 2022 Community (version 17.1.3).
 
 # Debugging the Source Generator
 
@@ -310,23 +311,19 @@ The biggest benefit in such a case is that there is no performance penalty assoc
 so before our program actually runs. One of the best examples of performance improvements that can be achieved is the described in the great [article](https://andrewlock.net/netescapades-enumgenerators-a-source-generator-for-enum-performance/)
 by [Andrew Lock](https://andrewlock.net/)
 
-## Definitions
-
-- Compiler - Takes code in, passes it through a pipeline and produces a  
-- Roslyn - 
-- Parser - Part of the compiler responsible for building the Syntax Tree from linear text (???)
-- Syntax Tree - 
-- Syntax Node - 
-- Compilation - 
-- Symbol - 
-- Intermediate Language - 
-- Compiler - Turns source code into Intermediate Language
-- JIT Compiler - Turns Intermediate Language into machine code that can be executed
-
 ### Sources
 
+- [Roslyn documentation](https://github.com/dotnet/roslyn)
+- [Syntax trees from Microsoft Roslyn SDK documentation](https://docs.microsoft.com/en-us/dotnet/csharp/roslyn-sdk/work-with-syntax)
+- [Syntax Visualizer For Rider](https://plugins.jetbrains.com/plugin/16356-syntax-visualizer-for-rider)
+- [Blog post about Syntax Analysis](https://joshvarty.com/2014/07/06/learn-roslyn-now-part-2-analyzing-syntax-trees-with-linq/)
+- [Description of Roslyn APIs](https://www.syncfusion.com/succinctly-free-ebooks/roslyn/walking-through-roslyn-architecture-apis-syntax)
+- [What is a compilation?](https://docs.microsoft.com/en-us/dotnet/csharp/roslyn-sdk/get-started/semantic-analysis#understanding-compilations-and-symbols)
+- [Part of Roslyn documentation about Source Generators](https://github.com/dotnet/roslyn/blob/main/docs/features/generators.md)
+- [Part of Roslyn documentation about Incremental Source Generators](https://github.com/dotnet/roslyn/blob/main/docs/features/incremental-generators.md)
+- [Nick Chapsas showing how a Generator influences build time](https://youtu.be/anesVdQg6Dk)
+- [Andrew Lock's post explaining Incremental Generators](https://andrewlock.net/exploring-dotnet-6-part-9-source-generator-updates-incremental-generators/)
 - [List of Source Generators](https://github.com/amis92/csharp-source-generators)
-- https://docs.microsoft.com/en-us/dotnet/csharp/roslyn-sdk/compiler-api-model
-- https://joshvarty.com/2014/07/06/learn-roslyn-now-part-2-analyzing-syntax-trees-with-linq
-- [Syntax vs Semantics](https://stackoverflow.com/questions/17930267/what-is-the-difference-between-syntax-and-semantics-in-programming-languages)
+- [Implementation of "Smart Enums" generator](https://www.thinktecture.com/en/net/roslyn-source-generators-introduction/)
 - [Incremental Source Generators documentation that comes with Roslyn](https://github.com/dotnet/roslyn/blob/main/docs/features/incremental-generators.md)
+- [Example how to write an Analyzer](https://www.codingzee.com/2021/04/c-code-analysis-with-roslyn-syntax-trees.html)

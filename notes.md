@@ -66,7 +66,7 @@ There are 3 different ways to request the semantic model:
 
 The semantic model is our bridge between the world of syntax and the world of symbols.
 
-[What is a compilation?](https://docs.microsoft.com/en-us/dotnet/csharp/roslyn-sdk/get-started/semantic-analysis#understanding-compilations-and-symbols)
+[What is a compilation?](https://docs.microsoft.com/en-us/dotnet/csharp/roslyn-sdk/get-started/semantic-analysis#understanding-compilations-and-symbols)
 
 ## Symbols
 
