@@ -73,8 +73,8 @@ words: Compilation can be understood as a bunch of Syntax Trees stuck together w
 
 ## Analyzers
 
-We can use all of that information in various ways. Source generators are the topic of this article. If we want to build a knowledge base to work with them it 
-is worth mentioning the mechanism they are derived from. Namely: analyzers. They use the same concepts of Syntax Trees and Compilation to inspect the code. 
+Source generators are the topic of this article. If we want to build a knowledge base to work with them it is worth mentioning the mechanism they are derived from. 
+Namely: analyzers. They use the same concepts of Syntax Trees and Compilation to inspect the code. 
 They allow to report Diagnostics through the use of [DiagnosticAnalyzer](https://docs.microsoft.com/en-us/dotnet/api/microsoft.codeanalysis.diagnostics.diagnosticanalyzer?view=roslyn-dotnet-4.1.0).
 Diagnostics are those very helpful squiggles that we get in our IDE everytime we do something fishy. The other helpful feature of the IDE enabled by Analyzers are Code Fixes.
 They are implemented with [CodeFixProvider](https://docs.microsoft.com/en-us/dotnet/api/microsoft.codeanalysis.codefixes.codefixprovider?view=roslyn-dotnet-4.1.0) which allows us to get
@@ -145,7 +145,7 @@ What the code above does is:
 - The `context.SyntaxProvider.CreateSyntaxProvider()` returns the `IncrementalValuesProvider<INamedTypeSymbol>` which we already know does all of the caching magic.
 
 It's important to underline that splitting the process into the predicate and transform is a window optimisation. It should do a lightweight check to quickly filter the incoming
-syntax. If the work it does is time consuming the experience in the ide will quickly become unbearable.
+syntax. If the work it does is time consuming the experience in the IDE will quickly become unbearable.
 
 The code ends with a `Where(m => m != null)`. This is not a LINQ operator. It behaves in a similar way but it is an *IValueProvider* extension method.
 There are other similar ones:
@@ -154,19 +154,36 @@ There are other similar ones:
 - Where
 - Collect
 - Combine
+all of which are described in more detail in the following [document](https://github.com/dotnet/roslyn/blob/main/docs/features/incremental-generators.md#select)
 
 Collect and combine don't have their counterparts in LINQ.
 
 #### Collect
 
-Can be thought of as similar to materializing operators from LINQ. It allows to obtain ImmutableArray<T> from the provider instead of just individual items one by one.
+Can be thought of as similar to materializing operators from LINQ. If we use it we will get a collection of all items being processed by the provider instead of obtaining them one by one.
+It will be represented as ImmutableArray<T>.
 
 #### Combine
 
-Like the name says it allows to create a conjunction of two providers. The result will be series of tuples containing values from both providers.
+Like the name says it allows to create a conjunction of two providers. The result will be a series of tuples containing values from both providers.
+It behaves different based on various multiplicity scenarios of it's arguments:
+- collection & collection, 
+- single item & single item
+- collection & single item
 
-Those operators are relevant for the rest of our pipeline which after completing looks as follows:
+In our case we will use this operator with CompilationProvider which has a single value of a Compilation. We will Combine it with the result of calling the 
+Collect operator on `IncrementalValuesProvider<INamedTypeSymbol>` which holds the symbols of Controllers we found earlier. This operator is the way to access a 
+Compilation object from IncrementalValuesProvider:
 
+            var compilationAndControllers
+                = context.CompilationProvider.Combine(controllerDeclarations
+                    .Collect());
+
+After adding those elements our generator will look like this:
+
+    [Generator]
+    public class ControllerListIncrementalGenerator : IIncrementalGenerator
+    {
         public void Initialize(IncrementalGeneratorInitializationContext context)
         {
             IncrementalValuesProvider<INamedTypeSymbol> controllerDeclarations = context.SyntaxProvider
@@ -195,8 +212,10 @@ Those operators are relevant for the rest of our pipeline which after completing
                 (spc, source) => Execute(source.Left, source.Right, spc));
         }
 
-Because the CompilationProvider is an IValueProvider we can obtain its instance only through the operators listed earlier. The details
-of how the code is generated are hidden in the Execute method. What is important to underline is the fact that the code we see
+        ...
+    }
+
+The details of how the code is generated are hidden in the Execute method. What is important to underline is the fact that the code we see
 in this Initialize() method only deals with *registering* the pipeline. All of those registered lambdas will execute whenever the context provides relevant changes in
 the syntax. All of those changes will be passed to the function used in RegisterSourceOutput. In our case it passed processing further to the Execute method:
 
@@ -217,6 +236,9 @@ the syntax. All of those changes will be passed to the function used in Register
             context.AddSource("ControllerListController.Incremental.g.cs",
                 FunctionTextProvider.GetFunctionText(controllerNames));
         }
+
+After some examination You will see that in case of our simple Generator the Compilation is not utilized in the Execute method. A lot of more advanced examples use the Compilation in this 
+final step to obtain additional information. I've used this pattern as an opportunity to explain how the Combine and Collect operators work.
 
 The most relevant part here is the SourceProductionContext and its AddSource() method. The method accepts the name of the output file and the template to inject
 values into. The template is nothing sophisticated in case of our example. It is just a class with a static method that provides the text and placeholders
@@ -309,7 +331,9 @@ When using Rider, make sure You have the correct Debugger option selected:
 This looks pretty cool but where to use this magic? The simplest answer is that in some scenarios Source Generators are a very good substitution for reflection. 
 The biggest benefit in such a case is that there is no performance penalty associated with reflection because the analysis is not done in runtime but at compile time 
 so before our program actually runs. One of the best examples of performance improvements that can be achieved is the described in the great [article](https://andrewlock.net/netescapades-enumgenerators-a-source-generator-for-enum-performance/)
-by [Andrew Lock](https://andrewlock.net/)
+by [Andrew Lock](https://andrewlock.net/). There are more and more libraries popping up making use of Source Generators. It is also becoming a major optimisation for 
+some basic framework functionality like in case of [logging](https://docs.microsoft.com/en-us/dotnet/core/extensions/logger-message-generator). It is worth knowing how this mechanism works
+to be able to use its full potential.
 
 ### Sources
 
