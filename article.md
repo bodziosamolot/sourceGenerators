@@ -5,9 +5,11 @@
 In simple terms a Source Generator is a class that produces code based on other code. The result is available upon 
 compilation. It may seem like magic because without creating any new *.cs files the developer can start using classes, 
 extension methods, structs or whatever we decide our Generator to create. This is because it includes the output in 
-compilation artifacts. In this article I want to provide the basic knowledge required to write a simple Incremental
-Source Generator. There is a lot the developer has to know about what the compiler is and how it sees and processes
-the code we feed to it.
+compilation artifacts. There is a lot the developer has to know about what the compiler is; how it sees and processes
+the code we feed to it. Understanding of those aspects if crucial to work with Code Generators.
+
+In this article I want to provide everything required to write a simple Incremental Source Generator. You will learn
+about Roslyn, what differentiates Source Generators from Incremental Source Generators and finally we will build a Generator.
 
 ## Compilation and Build process 
 
@@ -52,8 +54,9 @@ It shows elements out of which the Tree is constructed:
 - Trivia - Parts of syntax with really low significance like whitespace or comments.
 - Values - Some tokens store the characters they consist of in a separate field called Value.
 
-Syntax trees are used in what is called *syntax analysis*. You could compare a syntax tree to a diagram of code in one source file. It can be 
-useful but You are missing the context. In order to get more information we need to get to *semantic analysis*.
+Syntax trees are used in what is called *syntax analysis*. You could compare a syntax tree to a diagram of code in one source file. Lets assume this file has a definition of a class. 
+Syntax analysis can tell us a lot about that class but we won't learn about how it is used in the broader context of the entire program. In order to get that kind of information we need  
+*semantic analysis*.
 
 ### Compilation and Semantic Analysis 
 
@@ -84,15 +87,15 @@ useful suggestions on how to fix problems. A Source Generator is an unusual Anal
 
 ### Regular Source Generators
 
-In this article we are focusing on Incremental Source Generators. The name has "Incremental" in it. Are there Non-Incremental Source Generators?
-Yes, there are. They were introduced in .NET 5 but there was a problem with them. All of that processing that happens with each compilation occurs
+In this article we are focusing on Incremental Source Generators. You may be wondering if there are Non-Incremental Source Generators then? Yes, there are!
+They were introduced in .NET 5 but there was a problem. All of that processing that happens with each compilation occurs
 very often. Pretty much with every keystroke. This caused the developer experience in the IDE to deteriorate badly. It could be improved by aggressively 
 filtering the syntax processed by our generator but still was not good enough. The mechanism could be improved by introduction of caching and 
-including the filtration in its contract.
+including the filtration in its contract. Let's see what are the improvements introduced in the next iteration of Source Generators.
 
 ### Incremental Source Generator
 
-That caching is realized through IncrementalValueProvider<T> (and its sibling IncrementalValuesProvider<T>). When working with a generator we will have 
+The requirement of caching is realized through IncrementalValueProvider<T> (and its sibling IncrementalValuesProvider<T>). When working with a generator we will have 
 access to IncrementalGeneratorInitializationContext which allows to get the to a set of providers. They are the points through which we can work with different
 components of our program:
 - SyntaxProvider - this provider will serve us changes in the syntax of our program.
@@ -104,7 +107,9 @@ components of our program:
 All of which are utilizing IValueProvider<TSource> e.g., CompilationProvider is IncrementalValueProvider<Compilation>.
 The provider hides all of the implementation details related with caching. What's important for us is that the provider operators run only for changes.
 
-It is best explained with an example. I will skim over some important parts of an Incremental Source Generator to get to the vital ones first. 
+#### Let's write our own Incremental Source Generator
+
+Best way to learn something is to create it on Your own. I will skim over some important parts of an Incremental Source Generator to get to the vital ones first.
 The Generator has to implement the [IIncrementalGenerator](https://docs.microsoft.com/en-us/dotnet/api/microsoft.codeanalysis.iincrementalgenerator?view=roslyn-dotnet-4.1.0)
 interface. The interface consists of only one method:
 
@@ -237,7 +242,7 @@ the syntax. All of those changes will be passed to the function used in Register
                 FunctionTextProvider.GetFunctionText(controllerNames));
         }
 
-After some examination You will see that in case of our simple Generator the Compilation is not utilized in the Execute method. A lot of more advanced examples use the Compilation in this 
+After some examination You will see that in case of our simple generator the Compilation is not utilized in the Execute method. A lot of more advanced examples use the Compilation in this 
 final step to obtain additional information. I've used this pattern as an opportunity to explain how the Combine and Collect operators work.
 
 The most relevant part here is the SourceProductionContext and its AddSource() method. The method accepts the name of the output file and the template to inject
@@ -328,12 +333,8 @@ When using Rider, make sure You have the correct Debugger option selected:
 
 # Summary
 
-This looks pretty cool but where to use this magic? The simplest answer is that in some scenarios Source Generators are a very good substitution for reflection. 
-The biggest benefit in such a case is that there is no performance penalty associated with reflection because the analysis is not done in runtime but at compile time 
-so before our program actually runs. One of the best examples of performance improvements that can be achieved is the described in the great [article](https://andrewlock.net/netescapades-enumgenerators-a-source-generator-for-enum-performance/)
-by [Andrew Lock](https://andrewlock.net/). There are more and more libraries popping up making use of Source Generators. It is also becoming a major optimisation for 
-some basic framework functionality like in case of [logging](https://docs.microsoft.com/en-us/dotnet/core/extensions/logger-message-generator). It is worth knowing how this mechanism works
-to be able to use its full potential.
+There are more and more developers contributing their Source Generators to .NET ecosystem through open-source. The [list of Source Generators](https://github.com/amis92/csharp-source-generators) 
+to use is growing. I hope that after reading this article You will have enough information and resources to make use of this fantastic new tool and maybe add a new position to this list.
 
 ### Sources
 
