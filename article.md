@@ -336,7 +336,7 @@ When using Rider, make sure You have the correct Debugger option selected:
 There are more and more developers contributing their Source Generators to .NET ecosystem through open-source. The [list of Source Generators](https://github.com/amis92/csharp-source-generators) 
 to use is growing. I hope that after reading this article You will have enough information and resources to make use of this fantastic new tool and maybe add a new position to this list.
 
-### Sources
+# Sources
 
 - [Roslyn documentation](https://github.com/dotnet/roslyn)
 - [Syntax trees from Microsoft Roslyn SDK documentation](https://docs.microsoft.com/en-us/dotnet/csharp/roslyn-sdk/work-with-syntax)
