@@ -2,37 +2,39 @@
 
 ## Introduction
 
-In simple terms a Source Generator is a class that produces code based on other code. The result is available upon 
+In simple terms a Source Generator is a class that produces code based on another(albo zupełnie bez tego słowa?) code. The result is available upon 
 compilation. It may seem like magic because without creating any new *.cs files the developer can start using classes, 
 extension methods, structs or whatever we decide our Generator to create. This is because it includes the output in 
-compilation artifacts. There is a lot the developer has to know about what the compiler is; how it sees and processes
-the code we feed to it. Understanding of those aspects if crucial to work with Code Generators.
+compilation artifacts. There is a lot a developer has to know about what the compiler is; how it sees and processes
+the code we feed to it. Understanding of those aspects is crucial to working(?) with Code Generators.
 
 In this article I want to provide everything required to write a simple Incremental Source Generator. You will learn
 about Roslyn, what differentiates Source Generators from Incremental Source Generators and finally we will build a Generator.
 
 ## Compilation and Build process 
 
-We will be referring to the compilation a lot. It is important not to confuse it with a build. Build can
+We will be referring to the compilation a lot. It is important not to confuse it with a build process. Build process can
 be understood as creation of an executable. In order to build a .NET 
 executable or assembly we must use a specific tool. Most often it is MSBuild. What it does is it runs the 
-compiler providing it with all the inputs it requires like referenced assemblies, source files, etc. Language specific compiler 
+compiler providing it with all the inputs it requires: referenced assemblies, source files, etc. Language specific compiler 
 produces Intermediate Language out of the source code and is one of the steps in the build process. Compilation is lighter than build
 and is just one of its components. This is good because we need compilation to be executed often if we want to use the Compiler API and 
-its richness.
+its richness. 
 
 ## Roslyn
 
+!@#$ Zastanawiam się czy wspomnieć że to tylko pierwszy etap kompilacji, do IL. Może jakoś na końcu artykułu?
+
 Roslyn is the name used for .NET Compiler. It is open source and includes versions for C# and Visual Basic. Roslyn exposes various types of APIs:
 - Compiler APIs - Corresponding to phases of the Compiler Pipeline. We will use mostly those api for our Generator.
-- Diagnostic APIs - If You see colored squiggles in Your IDE that's thanks to the Diagnostic API.
+- Diagnostic APIs - If You see colored squiggles in Your IDE that is thanks to the Diagnostic API.
 - Scripting APIs - Allow to use C# as a scripting language.
 - Workspace APIs - Allow to work with how our program is structured i.e. Solution, Project.
 
 ![Compiler pipeline from https://docs.microsoft.com/en-us/dotnet/csharp/roslyn-sdk/compiler-api-model](https://docs.microsoft.com/en-us/dotnet/csharp/roslyn-sdk/media/compiler-api-model/compiler-pipeline-api.png)
 
 The picture above shows the Compiler Pipeline and APIs corresponding to its phases. We will need some fundamental knowledge 
-about how the Compiler works in order to make use of source generators.
+about how the compiler works in order to make use of source generators.
 
 ### Syntax Trees and Syntax Analysis
 
@@ -59,7 +61,7 @@ Syntax analysis can tell us a lot about that class but we won't learn about how 
 *semantic analysis*.
 
 ### Compilation and Semantic Analysis 
-
+!@#$ Czemu czasem piszesz Syntax Trees, Symbols etc. z dużych liter?
 Next up in the compilation pipeline there are two separate boxes: Symbols and Metadata Import. The metadata allows the formation of Symbols. 
 They are the key to obtaining semantic information about our code from the Compilation. Why is the metadata required? Some elements are imported into our program
 from assemblies. Metadata allows to get information about those *foreign* objects. There are various types of Symbols. To illustrate what we can learn from a symbol
@@ -88,10 +90,10 @@ useful suggestions on how to fix problems. A Source Generator is an unusual Anal
 ### Regular Source Generators
 
 In this article we are focusing on Incremental Source Generators. You may be wondering if there are Non-Incremental Source Generators then? Yes, there are!
-They were introduced in .NET 5 but there was a problem. All of that processing that happens with each compilation occurs
-very often. Pretty much with every keystroke. This caused the developer experience in the IDE to deteriorate badly. It could be improved by aggressively 
-filtering the syntax processed by our generator but still was not good enough. The mechanism could be improved by introduction of caching and 
-including the filtration in its contract. Let's see what are the improvements introduced in the next iteration of Source Generators.
+They were introduced in .NET 5 but there was a problem. All the processing required for them to work happened on each compilation. Compilation itself occurs very often, pretty much with every keystroke. This caused the developer experience in the IDE to deteriorate badly. It could be improved by aggressively 
+filtering the syntax processed by our generator but still was not good enough. The mechanism could be improved with caching and filtering its contract(?). !@#$ Nie do końca rozumiem o co chodzi z filtrowaniem kontraktu, nadal ma to sens?
+
+Due to those limitations a next iteration was introduced - incremental source generators!
 
 ### Incremental Source Generator
 
@@ -107,16 +109,19 @@ components of our program:
 All of which are utilizing IValueProvider<TSource> e.g., CompilationProvider is IncrementalValueProvider<Compilation>.
 The provider hides all of the implementation details related with caching. What's important for us is that the provider operators run only for changes.
 
+!@#$ Przewija się tutaj dużo nazw klas, dodałbym je w `` aby umożliwić prezentację jako `kod`. Nie jestem pewien jak to wpłynie na czytelność - trzeba by sprawdzić. 
+          
 #### Let's write our own Incremental Source Generator
 
-Best way to learn something is to create it on Your own. I will skim over some important parts of an Incremental Source Generator to get to the vital ones first.
+Best way to learn something is to create it on your own. I will skim over some important parts of an Incremental Source Generator to get to the vital ones first.
 The Generator has to implement the [IIncrementalGenerator](https://docs.microsoft.com/en-us/dotnet/api/microsoft.codeanalysis.iincrementalgenerator?view=roslyn-dotnet-4.1.0)
 interface. The interface consists of only one method:
 
 `Initialize(IncrementalGeneratorInitializationContext)`
 
-This *IncrementalGeneratorInitializationContext* is what gives us access to all the providers mentioned before. It is worth mentioning that the implementation of Incremental Source Generator
-in this article is a functional one but it distilled so that we can focus on the most important things. It lacks some checks and operations You would normally add. 
+This *IncrementalGeneratorInitializationContext* is what gives us access to all providers mentioned before.
+          
+It is worth emphasizing the implementation of Incremental Source Generator in this article is a functional one, however distilled so that we can focus on the most important things. It lacks some checks and operations one would normally add. 
 
           public void Initialize(IncrementalGeneratorInitializationContext context)
           {
@@ -152,6 +157,8 @@ What the code above does is:
 It's important to underline that splitting the process into the predicate and transform is a window optimisation. It should do a lightweight check to quickly filter the incoming
 syntax. If the work it does is time consuming the experience in the IDE will quickly become unbearable.
 
+!@#$ To brzmi jak cała nowa podsekcja o operatorach "jak w LINQ"
+          
 The code ends with a `Where(m => m != null)`. This is not a LINQ operator. It behaves in a similar way but it is an *IValueProvider* extension method.
 There are other similar ones:
 - Select
@@ -220,9 +227,7 @@ After adding those elements our generator will look like this:
         ...
     }
 
-The details of how the code is generated are hidden in the Execute method. What is important to underline is the fact that the code we see
-in this Initialize() method only deals with *registering* the pipeline. All of those registered lambdas will execute whenever the context provides relevant changes in
-the syntax. All of those changes will be passed to the function used in RegisterSourceOutput. In our case it passed processing further to the Execute method:
+The details of how the code is generated are hidden in the Execute method. It is important to stress the fact that the code we see in this Initialize() method only deals with *registering* the pipeline. All of those registered lambdas will execute whenever the context provides relevant changes in the syntax. All of those changes will be passed to the function used in RegisterSourceOutput. In our case it passed processing further to the Execute method:
 
         void Execute(Compilation compilation, ImmutableArray<INamedTypeSymbol> controllerSymbols,
             SourceProductionContext context)
@@ -242,8 +247,7 @@ the syntax. All of those changes will be passed to the function used in Register
                 FunctionTextProvider.GetFunctionText(controllerNames));
         }
 
-After some examination You will see that in case of our simple generator the Compilation is not utilized in the Execute method. A lot of more advanced examples use the Compilation in this 
-final step to obtain additional information. I've used this pattern as an opportunity to explain how the Combine and Collect operators work.
+After some examination You will notice that in case of our simple generator the Compilation is not utilized in the Execute method. A lot of more advanced examples use the Compilation in this final step to obtain additional information. I've used this pattern as an opportunity to explain how the Combine and Collect operators work.
 
 The most relevant part here is the SourceProductionContext and its AddSource() method. The method accepts the name of the output file and the template to inject
 values into. The template is nothing sophisticated in case of our example. It is just a class with a static method that provides the text and placeholders
@@ -280,11 +284,11 @@ for values provided from the generator:
         return sourceBuilder.ToString();
     }
 
-By looking at the template we can easily come up with what the generator actually does: it provides a very useful functionality of 
+By looking at the template we can easily come up with what the generator actually does: provides a very useful functionality of 
 listing the controllers defined in our ASP.NET application. That shows that most of the work done in the generator is extracting the values
 to combine with the template.
 
-## Generators at work
+## Generators at work 
 
 How do we know if our generator works? All You need to do is execute the app after cloning it from the [repo](https://github.com/bodziosamolot/sourceGenerators).
 You will notice that nowhere does it define the IncrementalMetadataController but after running it and visiting the `https://localhost:7259/IncrementalMetadata/incremental/controllers`
@@ -309,16 +313,16 @@ There is also a different way of verifying what was produced:
 
       </Project>
 
-The EmitCompilerGeneratedFiles and CompilerGeneratedFilesOutputPath properties allow to save the generated code to disk. 
+The EmitCompilerGeneratedFiles and CompilerGeneratedFilesOutputPath properties allow to save the generated code to a disk. 
 There is a caveat: the generator works pretty much on every keystroke but the files are saved only on build. To observe that behaviour 
-I've added a static method in the controller that has the name of the first Controller in our app. If You change the name of the `DummyController` the
+I have added a static method in the controller that has the name of the first Controller in our app. If You change the name of the `DummyController` the
 name of the static method on the IncrementalMetadataController should update immediately in the IDE but not on disk. It will synchronise on disk only
-after a build. I've noticed some irregularities in how this mechanism is acting so I wouldn't rely on it. I was surprised that although breaking from time to time 
+after a build. I have noticed some irregularities in how this mechanism is acting so I would not rely on it. I was surprised that although breaking from time to time 
 it worked better in Rider (version 2021.3.3) than in Visual Studio 2022 Community (version 17.1.3).
 
 # Debugging the Source Generator
 
-Unfortunately the code that we write does not always produce the results we have expected. How can we debug a Source Generator? It is a bit 
+Unfortunately the code that we write does not always produce the results we expect. How can we debug a Source Generator? It is a bit 
 awkward. In order to break on Generator execution You need to add the following line to it:
 
 `Debugger.Launch()`
