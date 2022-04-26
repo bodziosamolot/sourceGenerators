@@ -4,12 +4,12 @@
 
 In simple terms a source generator is a class that produces code based on other code. The result is available upon 
 compilation. It may seem like magic because without creating any new *.cs files the developer can start using classes, 
-extension methods, structs or whatever we decide our Generator to create. This is because it includes the output in 
+extension methods, structs or whatever we decide our generator to create. This is because it includes the output in 
 compilation artifacts. There is a lot the developer has to know about what the compiler is; how it sees and processes
 the code we feed to it. Understanding of those aspects if crucial to work with source generators.
 
 In this article I want to provide everything required to write a simple Incremental source generator. You will learn
-about Roslyn, what differentiates source generators from incremental source generators and finally we will build a Generator.
+about Roslyn, what differentiates source generators from incremental source generators and finally we will build a generator.
 
 ## Compilation and Build process 
 
@@ -24,7 +24,7 @@ its richness.
 ## Roslyn
 
 Roslyn is the name used for .NET Compiler. It is open source and includes versions for C# and Visual Basic. Roslyn exposes various types of APIs:
-- Compiler APIs - Corresponding to phases of the Compiler Pipeline. We will use mostly those api for our Generator.
+- Compiler APIs - Corresponding to phases of the Compiler Pipeline. We will use mostly those api for our generator.
 - Diagnostic APIs - If You see colored squiggles in Your IDE that's thanks to the Diagnostic API.
 - Scripting APIs - Allow to use C# as a scripting language.
 - Workspace APIs - Allow to work with how our program is structured i.e. Solution, Project.
@@ -109,8 +109,8 @@ The provider hides all of the implementation details related with caching. What'
 
 #### Let's write our own Incremental Source Generator
 
-Best way to learn something is to create it on Your own. I will skim over some important parts of an incremental source Generator to get to the vital ones first.
-The Generator has to implement the [IIncrementalGenerator](https://docs.microsoft.com/en-us/dotnet/api/microsoft.codeanalysis.iincrementalgenerator?view=roslyn-dotnet-4.1.0)
+Best way to learn something is to create it on Your own. I will skim over some important parts of an incremental source generator to get to the vital ones first.
+The generator has to implement the [IIncrementalGenerator](https://docs.microsoft.com/en-us/dotnet/api/microsoft.codeanalysis.iincrementalgenerator?view=roslyn-dotnet-4.1.0)
 interface. The interface consists of only one method:
 
 `Initialize(IncrementalGeneratorInitializationContext)`
@@ -319,11 +319,11 @@ it worked better in Rider (version 2021.3.3) than in Visual Studio 2022 Communit
 # Debugging the Source Generator
 
 Unfortunately the code that we write does not always produce the results we have expected. How can we debug a source generator? It is a bit 
-awkward. In order to break on Generator execution You need to add the following line to it:
+awkward. In order to break on generator execution You need to add the following line to it:
 
 `Debugger.Launch()`
 
-When the Generator executes You will be presented with a prompt with the choice of IDE's to use for the debugging session:
+When the generator executes You will be presented with a prompt with the choice of IDE's to use for the debugging session:
 
 ![JIT Debugger Prompt](https://i.imgur.com/lEseLeh.png)
 
