@@ -17,7 +17,7 @@ We will be referring to the compilation a lot. It is important not to confuse it
 be understood as creation of an executable. In order to build a .NET 
 executable or assembly we must use a specific tool. Most often it is MSBuild. What it does is it runs the 
 compiler providing it with all the inputs it requires like referenced assemblies, source files, etc. Language specific compiler 
-produces Intermediate Language out of the source code and is one of the steps in the build process. Compilation is lighter than build
+produces intermediate language out of the source code and is one of the steps in the build process. Compilation is lighter than build
 and is just one of its components. This is good because we need compilation to be executed often if we want to use the Compiler API and 
 its richness.
 
