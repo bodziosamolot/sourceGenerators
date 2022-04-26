@@ -6,7 +6,7 @@ In simple terms a source generator is a class that produces code based on other 
 compilation. It may seem like magic because without creating any new *.cs files the developer can start using classes, 
 extension methods, structs or whatever we decide our Generator to create. This is because it includes the output in 
 compilation artifacts. There is a lot the developer has to know about what the compiler is; how it sees and processes
-the code we feed to it. Understanding of those aspects if crucial to work with Code Generators.
+the code we feed to it. Understanding of those aspects if crucial to work with source generators.
 
 In this article I want to provide everything required to write a simple Incremental source generator. You will learn
 about Roslyn, what differentiates source generators from incremental source generators and finally we will build a Generator.
