@@ -30,7 +30,7 @@ C# compiler with an API allowing code analysis.
 
 Syntax trees are immutable.
 
-The main idea is that given a string containing C# code, the compiler creates a tree representation (called a Syntax Tree) of the string
+The main idea is that given a string containing C# code, the compiler creates a tree representation (called a syntax tree) of the string
 
 Syntax nodes are one of the primary elements of syntax trees. These nodes represent syntactic constructs such as declarations, statements, clauses, and expressions. Each category of syntax nodes is represented by a separate class derived from SyntaxNode.
 
@@ -52,7 +52,7 @@ Use the syntax model to find the structure of the code; you use the semantic mod
 
 ## Semantic Model
 
-A Compilation allows you to find Symbols - entities such as types, namespaces, members, and variables which names and other expressions refer to. The process of associating names and expressions with Symbols is called Binding.
+A compilation allows you to find Symbols - entities such as types, namespaces, members, and variables which names and other expressions refer to. The process of associating names and expressions with Symbols is called Binding.
 
 The Syntax API allows you to look at the structure of a program. However, often you want richer information about the semantics or meaning of a program.
 

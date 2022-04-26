@@ -2,14 +2,14 @@
 
 ## Introduction
 
-In simple terms a Source Generator is a class that produces code based on other code. The result is available upon 
+In simple terms a source generator is a class that produces code based on other code. The result is available upon 
 compilation. It may seem like magic because without creating any new *.cs files the developer can start using classes, 
 extension methods, structs or whatever we decide our Generator to create. This is because it includes the output in 
 compilation artifacts. There is a lot the developer has to know about what the compiler is; how it sees and processes
 the code we feed to it. Understanding of those aspects if crucial to work with Code Generators.
 
-In this article I want to provide everything required to write a simple Incremental Source Generator. You will learn
-about Roslyn, what differentiates Source Generators from Incremental Source Generators and finally we will build a Generator.
+In this article I want to provide everything required to write a simple Incremental source generator. You will learn
+about Roslyn, what differentiates source generators from incremental source generators and finally we will build a Generator.
 
 ## Compilation and Build process 
 
@@ -36,9 +36,9 @@ about how the Compiler works in order to make use of source generators.
 
 ### Syntax Trees and Syntax Analysis
 
-At the most basic level we work with our code as static text. This text is processed by the a parser which produces Syntax Trees. Plural because 
-each source file corresponds to a separate Syntax Tree. Referring 
-to the Compiler Pipeline illustration it corresponds to the "Parser" box. A Syntax Tree is
+At the most basic level we work with our code as static text. This text is processed by the a parser which produces syntax trees. Plural because 
+each source file corresponds to a separate syntax tree. Referring 
+to the Compiler Pipeline illustration it corresponds to the "Parser" box. A syntax tree is
 a hierarchical representation of text consisting of Syntax Nodes. It is best pictured with the following tools:
 
 - [Syntax Tree Viewer in Rider](https://plugins.jetbrains.com/plugin/16356-syntax-visualizer-for-rider)
@@ -61,7 +61,7 @@ Syntax analysis can tell us a lot about that class but we won't learn about how 
 ### Compilation and Semantic Analysis 
 
 Next up in the compilation pipeline there are two separate boxes: Symbols and Metadata Import. The metadata allows the formation of Symbols. 
-They are the key to obtaining semantic information about our code from the Compilation. Why is the metadata required? Some elements are imported into our program
+They are the key to obtaining semantic information about our code from the compilation. Why is the metadata required? Some elements are imported into our program
 from assemblies. Metadata allows to get information about those *foreign* objects. There are various types of Symbols. To illustrate what we can learn from a symbol
 lets use an example. [This](https://docs.microsoft.com/en-us/dotnet/api/microsoft.codeanalysis.inamedtypesymbol?view=roslyn-dotnet-4.1.0) is the documentation for
 INamedTypeSymbol. We can learn about such properties as:
@@ -70,28 +70,28 @@ INamedTypeSymbol. We can learn about such properties as:
 - List of interfaces this type implements,
 - If it is static.
 
-This is just a minor part of all the information we can get about the associated code element. With semantic analysis we see our constructs not in isolation like in the case of Syntax Trees 
+This is just a minor part of all the information we can get about the associated code element. With semantic analysis we see our constructs not in isolation like in the case of syntax trees 
 but in a broader landscape. This context can be imagined as a compilation unit: an assembly or a project in our solution. So in other 
-words: Compilation can be understood as a bunch of Syntax Trees stuck together with added metadata.
+words: compilation can be understood as a bunch of syntax trees stuck together with added metadata.
 
 ## Analyzers
 
 Source generators are the topic of this article. If we want to build a knowledge base to work with them it is worth mentioning the mechanism they are derived from. 
-Namely: analyzers. They use the same concepts of Syntax Trees and Compilation to inspect the code. 
+Namely: analyzers. They use the same concepts of syntax trees and compilation to inspect the code. 
 They allow to report Diagnostics through the use of [DiagnosticAnalyzer](https://docs.microsoft.com/en-us/dotnet/api/microsoft.codeanalysis.diagnostics.diagnosticanalyzer?view=roslyn-dotnet-4.1.0).
 Diagnostics are those very helpful squiggles that we get in our IDE everytime we do something fishy. The other helpful feature of the IDE enabled by Analyzers are Code Fixes.
 They are implemented with [CodeFixProvider](https://docs.microsoft.com/en-us/dotnet/api/microsoft.codeanalysis.codefixes.codefixprovider?view=roslyn-dotnet-4.1.0) which allows us to get
-useful suggestions on how to fix problems. A Source Generator is an unusual Analyzer which apart from inspecting code, produces it based on the results of that inspection.
+useful suggestions on how to fix problems. A source generator is an unusual Analyzer which apart from inspecting code, produces it based on the results of that inspection.
 
 ## Types of Source Generators
 
 ### Regular Source Generators
 
-In this article we are focusing on Incremental Source Generators. You may be wondering if there are Non-Incremental Source Generators then? Yes, there are!
+In this article we are focusing on incremental source generators. You may be wondering if there are non-incremental source generators then? Yes, there are!
 They were introduced in .NET 5 but there was a problem. All of that processing that happens with each compilation occurs
 very often. Pretty much with every keystroke. This caused the developer experience in the IDE to deteriorate badly. It could be improved by aggressively 
 filtering the syntax processed by our generator but still was not good enough. The mechanism could be improved by introduction of caching and 
-including the filtration in its contract. Let's see what are the improvements introduced in the next iteration of Source Generators.
+including the filtration in its contract. Let's see what are the improvements introduced in the next iteration of source generators.
 
 ### Incremental Source Generator
 
@@ -109,13 +109,13 @@ The provider hides all of the implementation details related with caching. What'
 
 #### Let's write our own Incremental Source Generator
 
-Best way to learn something is to create it on Your own. I will skim over some important parts of an Incremental Source Generator to get to the vital ones first.
+Best way to learn something is to create it on Your own. I will skim over some important parts of an incremental source Generator to get to the vital ones first.
 The Generator has to implement the [IIncrementalGenerator](https://docs.microsoft.com/en-us/dotnet/api/microsoft.codeanalysis.iincrementalgenerator?view=roslyn-dotnet-4.1.0)
 interface. The interface consists of only one method:
 
 `Initialize(IncrementalGeneratorInitializationContext)`
 
-This *IncrementalGeneratorInitializationContext* is what gives us access to all the providers mentioned before. It is worth mentioning that the implementation of Incremental Source Generator
+This *IncrementalGeneratorInitializationContext* is what gives us access to all the providers mentioned before. It is worth mentioning that the implementation of incremental source generator
 in this article is a functional one but it distilled so that we can focus on the most important things. It lacks some checks and operations You would normally add. 
 
           public void Initialize(IncrementalGeneratorInitializationContext context)
@@ -318,7 +318,7 @@ it worked better in Rider (version 2021.3.3) than in Visual Studio 2022 Communit
 
 # Debugging the Source Generator
 
-Unfortunately the code that we write does not always produce the results we have expected. How can we debug a Source Generator? It is a bit 
+Unfortunately the code that we write does not always produce the results we have expected. How can we debug a source generator? It is a bit 
 awkward. In order to break on Generator execution You need to add the following line to it:
 
 `Debugger.Launch()`
@@ -333,7 +333,7 @@ When using Rider, make sure You have the correct Debugger option selected:
 
 # Summary
 
-There are more and more developers contributing their Source Generators to .NET ecosystem through open-source. The [list of Source Generators](https://github.com/amis92/csharp-source-generators) 
+There are more and more developers contributing their source generators to .NET ecosystem through open-source. The [list of Source Generators](https://github.com/amis92/csharp-source-generators) 
 to use is growing. I hope that after reading this article You will have enough information and resources to make use of this fantastic new tool and maybe add a new position to this list.
 
 # Sources
