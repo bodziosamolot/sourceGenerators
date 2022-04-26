@@ -25,7 +25,7 @@ its richness.
 
 Roslyn is the name used for .NET Compiler. It is open source and includes versions for C# and Visual Basic. Roslyn exposes various types of APIs:
 - Compiler APIs - Corresponding to phases of the Compiler Pipeline. We will use mostly those api for our generator.
-- Diagnostic APIs - If You see colored squiggles in Your IDE that's thanks to the Diagnostic API.
+- Diagnostic APIs - If you see colored squiggles in your IDE that's thanks to the Diagnostic API.
 - Scripting APIs - Allow to use C# as a scripting language.
 - Workspace APIs - Allow to work with how our program is structured i.e. Solution, Project.
 
@@ -109,14 +109,14 @@ The provider hides all of the implementation details related with caching. What'
 
 #### Let's write our own Incremental Source Generator
 
-Best way to learn something is to create it on Your own. I will skim over some important parts of an incremental source generator to get to the vital ones first.
+Best way to learn something is to create it on your own. I will skim over some important parts of an incremental source generator to get to the vital ones first.
 The generator has to implement the [IIncrementalGenerator](https://docs.microsoft.com/en-us/dotnet/api/microsoft.codeanalysis.iincrementalgenerator?view=roslyn-dotnet-4.1.0)
 interface. The interface consists of only one method:
 
 `Initialize(IncrementalGeneratorInitializationContext)`
 
 This *IncrementalGeneratorInitializationContext* is what gives us access to all the providers mentioned before. It is worth mentioning that the implementation of incremental source generator
-in this article is a functional one but it distilled so that we can focus on the most important things. It lacks some checks and operations You would normally add. 
+in this article is a functional one but it distilled so that we can focus on the most important things. It lacks some checks and operations you would normally add. 
 
           public void Initialize(IncrementalGeneratorInitializationContext context)
           {
@@ -242,7 +242,7 @@ the syntax. All of those changes will be passed to the function used in Register
                 FunctionTextProvider.GetFunctionText(controllerNames));
         }
 
-After some examination You will see that in case of our simple generator the Compilation is not utilized in the Execute method. A lot of more advanced examples use the Compilation in this 
+After some examination you will see that in case of our simple generator the Compilation is not utilized in the Execute method. A lot of more advanced examples use the Compilation in this 
 final step to obtain additional information. I've used this pattern as an opportunity to explain how the Combine and Collect operators work.
 
 The most relevant part here is the SourceProductionContext and its AddSource() method. The method accepts the name of the output file and the template to inject
@@ -286,9 +286,9 @@ to combine with the template.
 
 ## Generators at work
 
-How do we know if our generator works? All You need to do is execute the app after cloning it from the [repo](https://github.com/bodziosamolot/sourceGenerators).
+How do we know if our generator works? All you need to do is execute the app after cloning it from the [repo](https://github.com/bodziosamolot/sourceGenerators).
 You will notice that nowhere does it define the IncrementalMetadataController but after running it and visiting the `https://localhost:7259/IncrementalMetadata/incremental/controllers`
-address You will get a response listing all of the controllers defined.
+address you will get a response listing all of the controllers defined.
 
 There is also a different way of verifying what was produced:
 
@@ -311,7 +311,7 @@ There is also a different way of verifying what was produced:
 
 The EmitCompilerGeneratedFiles and CompilerGeneratedFilesOutputPath properties allow to save the generated code to disk. 
 There is a caveat: the generator works pretty much on every keystroke but the files are saved only on build. To observe that behaviour 
-I've added a static method in the controller that has the name of the first Controller in our app. If You change the name of the `DummyController` the
+I've added a static method in the controller that has the name of the first Controller in our app. If you change the name of the `DummyController` the
 name of the static method on the IncrementalMetadataController should update immediately in the IDE but not on disk. It will synchronise on disk only
 after a build. I've noticed some irregularities in how this mechanism is acting so I wouldn't rely on it. I was surprised that although breaking from time to time 
 it worked better in Rider (version 2021.3.3) than in Visual Studio 2022 Community (version 17.1.3).
@@ -319,22 +319,22 @@ it worked better in Rider (version 2021.3.3) than in Visual Studio 2022 Communit
 # Debugging the Source Generator
 
 Unfortunately the code that we write does not always produce the results we have expected. How can we debug a source generator? It is a bit 
-awkward. In order to break on generator execution You need to add the following line to it:
+awkward. In order to break on generator execution you need to add the following line to it:
 
 `Debugger.Launch()`
 
-When the generator executes You will be presented with a prompt with the choice of IDE's to use for the debugging session:
+When the generator executes you will be presented with a prompt with the choice of IDE's to use for the debugging session:
 
 ![JIT Debugger Prompt](https://i.imgur.com/lEseLeh.png)
 
-When using Rider, make sure You have the correct Debugger option selected:
+When using Rider, make sure you have the correct Debugger option selected:
 
 ![Rider JIT Debugger settings](https://i.imgur.com/9oaw7X6.png)
 
 # Summary
 
 There are more and more developers contributing their source generators to .NET ecosystem through open-source. The [list of Source Generators](https://github.com/amis92/csharp-source-generators) 
-to use is growing. I hope that after reading this article You will have enough information and resources to make use of this fantastic new tool and maybe add a new position to this list.
+to use is growing. I hope that after reading this article you will have enough information and resources to make use of this fantastic new tool and maybe add a new position to this list.
 
 # Sources
 
