@@ -6,17 +6,17 @@ In simple terms a source generator is a class that produces code based on other 
 compilation. It may seem like magic because without creating any new *.cs files the developer can start using classes, 
 extension methods, structs or whatever we decide our generator to create. This is because it includes the output in 
 compilation artifacts. There is a lot the developer has to know about what the compiler is; how it sees and processes
-the code we feed to it. Understanding of those aspects if crucial to work with source generators.
+the code we feed to it. Understanding of those aspects is crucial to work efficiently with source generators.
 
 In this article I want to provide everything required to write a simple Incremental source generator. You will learn
 about Roslyn, what differentiates source generators from incremental source generators and finally we will build a generator.
 
 ## Compilation and Build process 
 
-We will be referring to the compilation a lot. It is important not to confuse it with a build. Build can
+We will be referring to the compilation a lot. It is important not to confuse it with the build process. Build process can
 be understood as creation of an executable. In order to build a .NET 
 executable or assembly we must use a specific tool. Most often it is MSBuild. What it does is it runs the 
-compiler providing it with all the inputs it requires like referenced assemblies, source files, etc. Language specific compiler 
+compiler providing it with all the inputs it requires: referenced assemblies, source files, etc. Language specific compiler 
 produces intermediate language out of the source code and is one of the steps in the build process. Compilation is lighter than build
 and is just one of its components. This is good because we need compilation to be executed often if we want to use the Compiler API and 
 its richness.
@@ -25,14 +25,14 @@ its richness.
 
 Roslyn is the name used for .NET Compiler. It is open source and includes versions for C# and Visual Basic. Roslyn exposes various types of APIs:
 - Compiler APIs - Corresponding to phases of the Compiler Pipeline. We will use mostly those api for our generator.
-- Diagnostic APIs - If you see colored squiggles in your IDE that's thanks to the Diagnostic API.
+- Diagnostic APIs - If you see colored squiggles in your IDE that is thanks to the Diagnostic API.
 - Scripting APIs - Allow to use C# as a scripting language.
 - Workspace APIs - Allow to work with how our program is structured i.e. Solution, Project.
 
 ![Compiler pipeline from https://docs.microsoft.com/en-us/dotnet/csharp/roslyn-sdk/compiler-api-model](https://docs.microsoft.com/en-us/dotnet/csharp/roslyn-sdk/media/compiler-api-model/compiler-pipeline-api.png)
 
 The picture above shows the Compiler Pipeline and APIs corresponding to its phases. We will need some fundamental knowledge 
-about how the Compiler works in order to make use of source generators.
+about how the compiler works in order to make use of source generators.
 
 ### Syntax Trees and Syntax Analysis
 
@@ -60,7 +60,7 @@ Syntax analysis can tell us a lot about that class but we won't learn about how 
 
 ### Compilation and Semantic Analysis 
 
-Next up in the compilation pipeline there are two separate boxes: Symbols and Metadata Import. The metadata allows the formation of Symbols. 
+Next up in the compilation pipeline there are two separate boxes: symbols and metadata import. The metadata allows the formation of Symbols. 
 They are the key to obtaining semantic information about our code from the compilation. Why is the metadata required? Some elements are imported into our program
 from assemblies. Metadata allows to get information about those *foreign* objects. There are various types of Symbols. To illustrate what we can learn from a symbol
 lets use an example. [This](https://docs.microsoft.com/en-us/dotnet/api/microsoft.codeanalysis.inamedtypesymbol?view=roslyn-dotnet-4.1.0) is the documentation for
@@ -88,23 +88,23 @@ useful suggestions on how to fix problems. A source generator is an unusual Anal
 ### Regular Source Generators
 
 In this article we are focusing on incremental source generators. You may be wondering if there are non-incremental source generators then? Yes, there are!
-They were introduced in .NET 5 but there was a problem. All of that processing that happens with each compilation occurs
-very often. Pretty much with every keystroke. This caused the developer experience in the IDE to deteriorate badly. It could be improved by aggressively 
-filtering the syntax processed by our generator but still was not good enough. The mechanism could be improved by introduction of caching and 
-including the filtration in its contract. Let's see what are the improvements introduced in the next iteration of source generators.
+They were introduced in .NET 5 but there was a problem. All the processing required for them to work happened on each compilation.
+Compilation itself occurs very often, pretty much with every keystroke. This caused the developer experience in the IDE to deteriorate badly. It could be improved by aggressively 
+filtering the syntax processed by our generator but still was not good enough. The mechanism could be improved with caching and 
+filtering in its contract. Because of those limitations a next iteration was introduced - incremental source generators.
 
 ### Incremental Source Generator
 
-The requirement of caching is realized through IncrementalValueProvider<T> (and its sibling IncrementalValuesProvider<T>). When working with a generator we will have 
-access to IncrementalGeneratorInitializationContext which allows to get the to a set of providers. They are the points through which we can work with different
+The requirement of caching is realized through ``IncrementalValueProvider<T>`` (and its sibling ``IncrementalValuesProvider<T>``). When working with a generator we will have 
+access to ``IncrementalGeneratorInitializationContext`` which allows to get the to a set of providers. They are the points through which we can work with different
 components of our program:
-- SyntaxProvider - this provider will serve us changes in the syntax of our program.
-- CompilationProvider - is the gateway to Semantic Analysis.
-- AdditionalTextsProvider - allows to obtain files with static content included in the project.
-- MetadataReferencesProvider - providers information about referenced assemblies.
-- AnalyzerConfigOptionsProvider & ParseOptionsProvider - allows to read configuration values.
+- ``SyntaxProvider`` - this provider will serve us changes in the syntax of our program.
+- ``CompilationProvider`` - is the gateway to Semantic Analysis.
+- ``AdditionalTextsProvider`` - allows to obtain files with static content included in the project.
+- ``MetadataReferencesProvider`` - providers information about referenced assemblies.
+- ``AnalyzerConfigOptionsProvider`` & ``ParseOptionsProvider`` - allows to read configuration values.
 
-All of which are utilizing IValueProvider<TSource> e.g., CompilationProvider is IncrementalValueProvider<Compilation>.
+All of which are utilizing ``IValueProvider<TSource>`` e.g., ``CompilationProvider`` is ``IncrementalValueProvider<Compilation>``.
 The provider hides all of the implementation details related with caching. What's important for us is that the provider operators run only for changes.
 
 #### Let's write our own Incremental Source Generator
@@ -115,8 +115,8 @@ interface. The interface consists of only one method:
 
 `Initialize(IncrementalGeneratorInitializationContext)`
 
-This *IncrementalGeneratorInitializationContext* is what gives us access to all the providers mentioned before. It is worth mentioning that the implementation of incremental source generator
-in this article is a functional one but it distilled so that we can focus on the most important things. It lacks some checks and operations you would normally add. 
+This ``IncrementalGeneratorInitializationContext`` is what gives us access to all the providers mentioned before. It is worth mentioning that the implementation of incremental source generator
+in this article is a functional one, however it distilled so that we can focus on the most important things. It lacks some checks and operations you would normally add. 
 
           public void Initialize(IncrementalGeneratorInitializationContext context)
           {
@@ -151,6 +151,8 @@ What the code above does is:
 
 It's important to underline that splitting the process into the predicate and transform is a window optimisation. It should do a lightweight check to quickly filter the incoming
 syntax. If the work it does is time consuming the experience in the IDE will quickly become unbearable.
+
+### LINQ-like syntax
 
 The code ends with a `Where(m => m != null)`. This is not a LINQ operator. It behaves in a similar way but it is an *IValueProvider* extension method.
 There are other similar ones:
@@ -220,9 +222,9 @@ After adding those elements our generator will look like this:
         ...
     }
 
-The details of how the code is generated are hidden in the Execute method. What is important to underline is the fact that the code we see
-in this Initialize() method only deals with *registering* the pipeline. All of those registered lambdas will execute whenever the context provides relevant changes in
-the syntax. All of those changes will be passed to the function used in RegisterSourceOutput. In our case it passed processing further to the Execute method:
+The details of how the code is generated are hidden in the Execute method. It is important to stress the fact that the code we see
+in this ``Initialize()`` method only deals with *registering* the pipeline. All of those registered lambdas will execute whenever the context provides relevant changes in
+the syntax. All of those changes will be passed to the function used in ``RegisterSourceOutput``. In our case it passed processing further to the Execute method:
 
         void Execute(Compilation compilation, ImmutableArray<INamedTypeSymbol> controllerSymbols,
             SourceProductionContext context)
@@ -309,16 +311,16 @@ There is also a different way of verifying what was produced:
 
       </Project>
 
-The EmitCompilerGeneratedFiles and CompilerGeneratedFilesOutputPath properties allow to save the generated code to disk. 
+The ``EmitCompilerGeneratedFiles`` and ``CompilerGeneratedFilesOutputPath`` properties allow to save the generated code to disk. 
 There is a caveat: the generator works pretty much on every keystroke but the files are saved only on build. To observe that behaviour 
-I've added a static method in the controller that has the name of the first Controller in our app. If you change the name of the `DummyController` the
+I have added a static method in the controller that has the name of the first Controller in our app. If you change the name of the `DummyController` the
 name of the static method on the IncrementalMetadataController should update immediately in the IDE but not on disk. It will synchronise on disk only
-after a build. I've noticed some irregularities in how this mechanism is acting so I wouldn't rely on it. I was surprised that although breaking from time to time 
+after a build. I have noticed some irregularities in how this mechanism is acting so I would not rely on it. I was surprised that although breaking from time to time 
 it worked better in Rider (version 2021.3.3) than in Visual Studio 2022 Community (version 17.1.3).
 
 # Debugging the Source Generator
 
-Unfortunately the code that we write does not always produce the results we have expected. How can we debug a source generator? It is a bit 
+Unfortunately the code that we write does not always produce the results we have expect. How can we debug a source generator? It is a bit 
 awkward. In order to break on generator execution you need to add the following line to it:
 
 `Debugger.Launch()`
