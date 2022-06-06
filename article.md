@@ -146,7 +146,7 @@ What the code above does is:
   - the first one is called the *predicate* and is the first level of filtration which processes the syntax,
   - the second one is called the *transform* and is used to obtain semantic information from the syntax that got through the predicate
 - In our generator the *predicate* looks through the syntax for nodes which represent a class whose name ends with "Controller"
-- The *transform* step uses the node to obtain the semantic information and check if the base of the class we are checking is of the *ControllerBase* type
+- The *transform* step uses the node to obtain the semantic information and check if the base of the class we are checking is of the ``ControllerBase`` type
 - The `context.SyntaxProvider.CreateSyntaxProvider()` returns the `IncrementalValuesProvider<INamedTypeSymbol>` which we already know does all of the caching magic.
 
 It's important to underline that splitting the process into the predicate and transform is a window optimisation. It should do a lightweight check to quickly filter the incoming
@@ -178,9 +178,9 @@ It behaves different based on various multiplicity scenarios of it's arguments:
 - single item & single item
 - collection & single item
 
-In our case we will use this operator with CompilationProvider which has a single value of a Compilation. We will Combine it with the result of calling the 
-Collect operator on `IncrementalValuesProvider<INamedTypeSymbol>` which holds the symbols of Controllers we found earlier. This operator is the way to access a 
-Compilation object from IncrementalValuesProvider:
+In our case we will use this operator with CompilationProvider which has a single value of a Compilation. We will ``Combine`` it with the result of calling the 
+``Collect`` operator on `IncrementalValuesProvider<INamedTypeSymbol>` which holds the symbols of Controllers we found earlier. This operator is the way to access a 
+Compilation object from ``IncrementalValuesProvider``:
 
             var compilationAndControllers
                 = context.CompilationProvider.Combine(controllerDeclarations
