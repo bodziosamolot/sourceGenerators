@@ -8,7 +8,7 @@ extension methods, structs or whatever we decide our generator to create. This i
 compilation artifacts. There is a lot the developer has to know about what the compiler is; how it sees and processes
 the code we feed to it. Understanding of those aspects is crucial to work efficiently with source generators.
 
-In this article I want to provide everything required to write a simple Incremental source generator. You will learn
+In this article I want to provide everything required to write a simple incremental source generator. You will learn
 about Roslyn, what differentiates source generators from incremental source generators and finally we will build a generator.
 
 ## Compilation and Build process 
@@ -17,29 +17,29 @@ We will be referring to the compilation a lot. It is important not to confuse it
 be understood as creation of an executable. In order to build a .NET 
 executable or assembly we must use a specific tool. Most often it is MSBuild. What it does is it runs the 
 compiler providing it with all the inputs it requires: referenced assemblies, source files, etc. Language specific compiler 
-produces intermediate language out of the source code and is one of the steps in the build process. Compilation is lighter than build
+produces intermediate language from the source code and is one of the steps in the build process. Compilation is lighter than build
 and is just one of its components. This is good because we need compilation to be executed often if we want to use the Compiler API and 
 its richness.
 
 ## Roslyn
 
 Roslyn is the name used for .NET Compiler. It is open source and includes versions for C# and Visual Basic. Roslyn exposes various types of APIs:
-- Compiler APIs - Corresponding to phases of the Compiler Pipeline. We will use mostly those api for our generator.
+- Compiler APIs - Corresponding to phases of the compiler pipeline. We will use mostly those api for our generator.
 - Diagnostic APIs - If you see colored squiggles in your IDE that is thanks to the Diagnostic API.
 - Scripting APIs - Allow to use C# as a scripting language.
 - Workspace APIs - Allow to work with how our program is structured i.e. Solution, Project.
 
 ![Compiler pipeline from https://docs.microsoft.com/en-us/dotnet/csharp/roslyn-sdk/compiler-api-model](https://docs.microsoft.com/en-us/dotnet/csharp/roslyn-sdk/media/compiler-api-model/compiler-pipeline-api.png)
 
-The picture above shows the Compiler Pipeline and APIs corresponding to its phases. We will need some fundamental knowledge 
+The picture above shows the compiler pipeline and APIs corresponding to its phases. We will need some fundamental knowledge 
 about how the compiler works in order to make use of source generators.
 
 ### Syntax Trees and Syntax Analysis
 
 At the most basic level we work with our code as static text. This text is processed by the a parser which produces syntax trees. Plural because 
 each source file corresponds to a separate syntax tree. Referring 
-to the Compiler Pipeline illustration it corresponds to the "Parser" box. A syntax tree is
-a hierarchical representation of text consisting of Syntax Nodes. It is best pictured with the following tools:
+to the compiler pipeline illustration it corresponds to the *Parser* box. A syntax tree is
+a hierarchical representation of text consisting of syntax nodes. It is best pictured with the following tools:
 
 - [Syntax Tree Viewer in Rider](https://plugins.jetbrains.com/plugin/16356-syntax-visualizer-for-rider)
 - Syntax Visualizer (with Directed Syntax Graph in Ultimate editions of Visual Studio)
@@ -48,7 +48,7 @@ Syntax visualisation of everyone's favourite [WeatherForecastController](https:/
 
 ![Syntax Tree of everyones favourite WeatherForecastController](https://i.imgur.com/AU0veYl.png)
 
-It shows elements out of which the Tree is constructed:
+It shows elements out of which the tree is composed of:
 - Nodes - Basic building blocks of the syntax tree consisting of combination of tokens, trivia and other nodes.
 - Tokens - Leaves of the syntax tree. These are elements like keywords or identifiers.
 - Trivia - Parts of syntax with really low significance like whitespace or comments.
@@ -60,11 +60,11 @@ Syntax analysis can tell us a lot about that class but we won't learn about how 
 
 ### Compilation and Semantic Analysis 
 
-Next up in the compilation pipeline there are two separate boxes: symbols and metadata import. The metadata allows the formation of Symbols. 
+Next up in the compilation pipeline there are two separate boxes: symbols and metadata import. The metadata allows the formation of symbols. 
 They are the key to obtaining semantic information about our code from the compilation. Why is the metadata required? Some elements are imported into our program
 from assemblies. Metadata allows to get information about those *foreign* objects. There are various types of Symbols. To illustrate what we can learn from a symbol
 lets use an example. [This](https://docs.microsoft.com/en-us/dotnet/api/microsoft.codeanalysis.inamedtypesymbol?view=roslyn-dotnet-4.1.0) is the documentation for
-INamedTypeSymbol. We can learn about such properties as:
+``INamedTypeSymbol``. We can learn about such properties as:
 - Arity of the type,
 - List of its constructors,
 - List of interfaces this type implements,
@@ -78,10 +78,10 @@ words: compilation can be understood as a bunch of syntax trees stuck together w
 
 Source generators are the topic of this article. If we want to build a knowledge base to work with them it is worth mentioning the mechanism they are derived from. 
 Namely: analyzers. They use the same concepts of syntax trees and compilation to inspect the code. 
-They allow to report Diagnostics through the use of [DiagnosticAnalyzer](https://docs.microsoft.com/en-us/dotnet/api/microsoft.codeanalysis.diagnostics.diagnosticanalyzer?view=roslyn-dotnet-4.1.0).
-Diagnostics are those very helpful squiggles that we get in our IDE everytime we do something fishy. The other helpful feature of the IDE enabled by Analyzers are Code Fixes.
+They allow to report diagnostics through the use of [DiagnosticAnalyzer](https://docs.microsoft.com/en-us/dotnet/api/microsoft.codeanalysis.diagnostics.diagnosticanalyzer?view=roslyn-dotnet-4.1.0).
+Diagnostics are those very helpful squiggles that we get in our IDE everytime we do something fishy. The other helpful feature of the IDE enabled by analyzers are code fixes.
 They are implemented with [CodeFixProvider](https://docs.microsoft.com/en-us/dotnet/api/microsoft.codeanalysis.codefixes.codefixprovider?view=roslyn-dotnet-4.1.0) which allows us to get
-useful suggestions on how to fix problems. A source generator is an unusual Analyzer which apart from inspecting code, produces it based on the results of that inspection.
+useful suggestions on how to fix problems. A source generator is an unusual analyzer which apart from inspecting code, produces it based on the results of that inspection.
 
 ## Types of Source Generators
 
@@ -99,7 +99,7 @@ The requirement of caching is realized through ``IncrementalValueProvider<T>`` (
 access to ``IncrementalGeneratorInitializationContext`` which allows to get the to a set of providers. They are the points through which we can work with different
 components of our program:
 - ``SyntaxProvider`` - this provider will serve us changes in the syntax of our program.
-- ``CompilationProvider`` - is the gateway to Semantic Analysis.
+- ``CompilationProvider`` - is the gateway to semantic analysis.
 - ``AdditionalTextsProvider`` - allows to obtain files with static content included in the project.
 - ``MetadataReferencesProvider`` - providers information about referenced assemblies.
 - ``AnalyzerConfigOptionsProvider`` & ``ParseOptionsProvider`` - allows to read configuration values.
